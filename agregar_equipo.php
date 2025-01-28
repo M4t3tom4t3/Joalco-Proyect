@@ -20,8 +20,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $fecha_compra = $_POST['fecha_compra'];
     $costo = $_POST['costo'];
 
-    $sql = "INSERT INTO equipos (serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, ip_lan, ip_wlan,usuario_dominio, hv, sistema_operativo, ram, disco, procesador, fecha_compra, costo)
-            VALUES ('$serial','$marca', '$modelo', '$nombre_equipo', '$placa', '$activo_fijo', '$estado', '$ip_lan', '$ip_wlan', '$usuario_dominio', '$hv', '$sistema_operativo', '$ram', '$disco', '$procesador', '$fecha_compra', '$costo')";
+    // Manejo del archivo de imagen
+    if (isset($_FILES['ruta_img']) && $_FILES['ruta_img']['error'] == 0) {
+        $target_dir = "Equipos/";
+        $target_file = $target_dir . basename($_FILES["ruta_img"]["name"]);
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // Verificar si el archivo es una imagen (opcional)
+        $check = getimagesize($_FILES["ruta_img"]["tmp_name"]);
+        if ($check !== false) {
+            // Intentar mover el archivo a la carpeta Equipos
+            if (move_uploaded_file($_FILES["ruta_img"]["tmp_name"], $target_file)) {
+                // Si el archivo se subió correctamente, almacenamos la ruta en la base de datos
+                $ruta_img = $target_file;
+            } else {
+                echo "Lo siento, hubo un error al subir el archivo.";
+                exit;
+            }
+        } else {
+            echo "El archivo no es una imagen válida.";
+            exit;
+        }
+    } else {
+        $ruta_img = null; // Si no se subió una imagen
+    }
+
+    // Preparar la consulta SQL
+    $sql = "INSERT INTO equipos (serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, procesador, fecha_compra, costo, ruta_img)
+            VALUES ('$serial','$marca', '$modelo', '$nombre_equipo', '$placa', '$activo_fijo', '$estado', '$ip_lan', '$ip_wlan', '$usuario_dominio', '$hv', '$sistema_operativo', '$ram', '$disco', '$procesador', '$fecha_compra', '$costo', '$ruta_img')";
 
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Equipo agregado exitosamente.'); window.location.href = 'list_eq.php';</script>";
@@ -29,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -76,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <span>Asignaciones</span>
                     </a>
                     <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
+                        <li class="sidebar-item">
                             <a href="asig_usuarios.php" class="sidebar-link"><i class="lni lni-user"></i>Personas</a>
                         </li>
                         <li class="sidebar-item">
@@ -137,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h3 class="fw-bold fs-4 mb-3">Agregar Equipo</h3>
                         <div class="row">
                             <div class="container mt-4">
-                                <form action="agregar_equipo.php" method="POST">
+                                <form action="agregar_equipo.php" method="POST" enctype="multipart/form-data">
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="serial" class="form-label">Serial</label>
@@ -226,6 +251,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <label for="costo" class="form-label">Costo</label>
                                             <input type="text" class="form-control" id="costo" name="costo">
                                         </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="formFile" class="form-label">Imagen del Equipo</label>
+                                        <input class="form-control" type="file" id="formFile" name="ruta_img">
                                     </div>
 
                                     <button type="submit" class="btn btn-primary">Guardar</button>

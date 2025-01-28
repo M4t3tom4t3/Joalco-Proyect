@@ -50,6 +50,17 @@ $stmt_equipo->execute(['serial' => $serial]);
 
 $equipo = $stmt_equipo->fetch(PDO::FETCH_ASSOC);
 
+$query_cambios = "
+    SELECT fecha_cambio, cambio
+    FROM cambios
+    WHERE fk_serial = :serial
+";
+$stmt_cambios = $pdo->prepare($query_cambios);
+$stmt_cambios->execute(['serial' => $serial]);
+
+$cambios = $stmt_cambios->fetchAll(PDO::FETCH_ASSOC);
+
+
 $pdf = new FPDI();
 $pdf->setSourceFile('base_hv.pdf');
 $template = $pdf->importPage(1);
@@ -112,8 +123,11 @@ $pdf->Cell(0, 10,htmlspecialchars($equipo['hv']));
 $pdf->setXY(170, 30);
 $pdf->Cell(0, 10,htmlspecialchars($equipo['activo_fijo']));
 
+$fecha_compra = date('d/m/Y', strtotime($equipo['fecha_compra']));
+
 $pdf->setXY(170, 34);
-$pdf->Cell(0, 10,htmlspecialchars($equipo['fecha_compra']));
+$pdf->Cell(0, 10, htmlspecialchars($fecha_compra));
+
 
 
 $pdf->setXY(158, 141);
@@ -146,6 +160,24 @@ foreach ($mantenimientos as $mantenimiento) {
     $pdf->Cell(0, 10, htmlspecialchars($mantenimiento['tecnico']));
 
     $y_position_mantenimiento += 4; 
+}
+$y_position_cambios = 157;  // Posición inicial para los cambios
+
+// Iterar sobre todos los cambios
+foreach ($cambios as $cambio) {
+    // Formatear la fecha
+    $fecha_cambio = date('d/m/Y', strtotime($cambio['fecha_cambio']));
+    
+    // Mostrar la fecha
+    $pdf->setXY(174, $y_position_cambios);
+    $pdf->Cell(0, 10, htmlspecialchars($fecha_cambio));   
+
+    // Mostrar el cambio
+    $pdf->setXY(98, $y_position_cambios);
+    $pdf->Cell(0, 10, htmlspecialchars($cambio['cambio']));
+
+    // Ajustar la posición para el siguiente cambio
+    $y_position_cambios += 5; // Ajusta este valor según el espacio necesario entre los cambios
 }
 
 

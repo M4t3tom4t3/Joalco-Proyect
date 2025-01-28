@@ -25,6 +25,32 @@ if (!$user) {
     die('No se encontró el usuario.');
 }
 
+$query_firma = "SELECT ruta_f FROM firmas WHERE fk_id = :id_usuario";
+$stmt_firma = $pdo->prepare($query_firma);
+$stmt_firma->execute(['id_usuario' => $id_usuario]);
+
+$firma = $stmt_firma->fetch(PDO::FETCH_ASSOC);
+
+// Verificar si la imagen existe antes de intentar cargarla
+$image_path = !empty($firma['ruta_f']) ? 'Firmas/' . $firma['ruta_f'] : '';  // Concatenamos la carpeta "Firmas" a la ruta guardada en la DB
+
+if ($image_path && file_exists($image_path)) {
+    // Imagen de la firma existe y es accesible
+    $image_exists = true;
+} else {
+    // Si no existe, establecemos la variable como false
+    $image_exists = false;
+}
+
+// Consultar firma específica para el usuario 4
+$query_firma_usuario_4 = "SELECT ruta_f FROM firmas WHERE fk_id = 4";
+$stmt_firma_usuario_4 = $pdo->prepare($query_firma_usuario_4);
+$stmt_firma_usuario_4->execute();
+
+$firma_usuario_4 = $stmt_firma_usuario_4->fetch(PDO::FETCH_ASSOC);
+$image_path_usuario_4 = !empty($firma_usuario_4['ruta_f']) ? 'Firmas/' . $firma_usuario_4['ruta_f'] : '';
+
+
 $query_activos = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.PLACA, e.sistema_operativo, 
                                e.procesador, e.ram, e.disco, e.ip_lan, e.usuario_dominio, 
                                a.numero_consecutivo, a.estado_asig, a.fecha_asignacion
@@ -56,8 +82,29 @@ $pdf->useTemplate($template);
 // Fuente
 $pdf->setFont('Arial', '', 9);
 
+if ($image_exists) {
+    $pdf->Image($image_path, 86, 234, 57, 11); // Ajusta las coordenadas y el tamaño según sea necesario
+} else {
+    // Si la imagen no se encuentra, podemos agregar un mensaje o dejar un espacio vacío
+    $pdf->setXY(90, 237);
+    $pdf->Cell(0, 10, "No se ha cargado la Firma");
+}
+
+if (!empty($image_path_usuario_4) && file_exists($image_path_usuario_4)) {
+    // Imagen de la firma de usuario 4
+    $pdf->Image($image_path_usuario_4, 30, 235, 57,11); // Ajustar la posición y el tamaño según sea necesario
+} else {
+    // Si no existe la firma, mostrar un mensaje
+    $pdf->setXY(40, 235);
+    $pdf->Cell(0, 10, "Firma no disponible.");
+}
+
+
 // Información del usuario
 $pdf->setXY(67, 35);
+$pdf->Cell(0, 10, htmlspecialchars($user['nombre']) . ' ' . htmlspecialchars($user['apellido']));
+
+$pdf->setXY(94, 246);
 $pdf->Cell(0, 10, htmlspecialchars($user['nombre']) . ' ' . htmlspecialchars($user['apellido']));
 
 $pdf->setXY(33, 57);

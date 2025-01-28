@@ -122,11 +122,13 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr class="highlight">
+
                                             <th scope="col">Serial</th>
                                             <th scope="col">Marca</th>
                                             <th scope="col">Modelo</th>
                                             <th scope="col">Equipo</th>
                                             <th scope="col">Placa</th>
+                                            <th scope="col">Imagen</th>
                                             <th scope="col">Acciones</th>
                                         </tr>
                                     </thead>
@@ -155,7 +157,7 @@
 
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        $sql = "SELECT serial, marca, modelo, nombre_equipo, placa, activo_fijo FROM equipos WHERE placa LIKE ? OR serial LIKE ? LIMIT $start_from, $results_per_page";
+                                        $sql = "SELECT serial, marca, modelo, nombre_equipo, placa, activo_fijo, ruta_img FROM equipos WHERE placa LIKE ? OR serial LIKE ? LIMIT $start_from, $results_per_page";
                                         $stmt = $conn->prepare($sql);
                                         $search_term = "%" . $search . "%";
                                         $stmt->bind_param("ss", $search_term, $search_term);
@@ -165,6 +167,7 @@
 
                                         if ($result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
+                                                $ruta_img = htmlspecialchars($row['ruta_img']);
                                                 $serial = htmlspecialchars($row['serial']);
                                                 echo "<tr>";
                                                 echo "<td>" . htmlspecialchars($row['serial']) . "</td>";
@@ -172,11 +175,24 @@
                                                 echo "<td>" . htmlspecialchars($row['modelo']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['nombre_equipo']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['placa']) . "</td>";
+                                                echo "<td>";
+                                                if (!empty($ruta_img)) {
+                                                    echo "<a href='$ruta_img' target='_blank'>";
+                                                    echo "<img src='$ruta_img' alt='Imagen del equipo' style='width: 100px; height: 75px;'>";
+                                                    echo "</a>";
+                                                } else {
+                                                    echo "No imagen disponible";
+                                                }
+
                                                 echo "<td>
                                                 <button class='btn btn-warning btn-sm edit-btn' data-serial='" . $serial . "' data-bs-toggle='modal' data-bs-target='#editModal'>
                                                 <i class='lni lni-pencil'></i> 
                                                 </button>
                                                 <a href='#' class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#exampleModal' data-serial='" . $serial . "'><i class='lni lni-eye'></i></a>
+                                                
+                                                <button class='btn btn-success btn-sm edit-btn' onclick=\"window.location.href='subir_imagen.php?serial=" . $serial . "'\">
+                                                <i class='lni lni-folder'></i> 
+                                                </button>
                                                 </td>";
                                                 echo "</tr>";
                                             }
@@ -237,7 +253,7 @@
                                                         aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form id="editEquipoForm">
+                                                    <form id="editEquipoForm" enctype="multipart/form-data">
                                                         <input type="hidden" id="serial" name="serial">
                                                         <div class="mb-3">
                                                             <label for="marca" class="form-label">Marca</label>
@@ -328,9 +344,7 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </table>
-
                                 <nav aria-label="Page navigation example">
                                     <ul class="pagination justify-content-center">
                                         <!-- Botón para ir a la primera página -->
@@ -534,6 +548,17 @@
             });
         });
     </script>
+    <script>
+        $(document).ready(function () {
+            // Cuando se hace clic en el botón "Subir Imagen", obtener el serial del equipo
+            $('.btn-upload-image').on('click', function () {
+                var serial = $(this).data('serial'); // Obtener el serial del botón
+                // Redirigir al formulario de subida de imagen con el serial como parámetro en la URL
+                window.location.href = 'subir_imagen.php?serial=' + serial;
+            });
+        });
+    </script>
+
 </body>
 
 </html>
