@@ -43,7 +43,7 @@ if (empty($usuarios_ids)) {
     die('No se encontró ningún usuario asignado a este serial.');
 }
 
-$query_equipo = "SELECT serial, nombre_equipo, marca, modelo, PLACA, ip_lan, ip_wlan, hv, sistema_operativo, usuario_dominio, ram, disco, procesador, fecha_compra, activo_fijo
+$query_equipo = "SELECT serial, nombre_equipo, marca, modelo, PLACA, ip_lan, ip_wlan, hv, sistema_operativo, usuario_dominio, ram, disco, procesador, fecha_compra, activo_fijo, costo, num_factura, num_pedido, host_name, mac_lan, mac_wlan, licencia_w, paquete_of
                  FROM equipos WHERE serial = :serial";
 $stmt_equipo = $pdo->prepare($query_equipo);
 $stmt_equipo->execute(['serial' => $serial]);
@@ -129,11 +129,32 @@ $pdf->setXY(170, 34);
 $pdf->Cell(0, 10, htmlspecialchars($fecha_compra));
 
 
-
 $pdf->setXY(158, 141);
 $pdf->Cell(0, 10,htmlspecialchars($equipo['usuario_dominio']));
 
+$pdf->setXY(158, 137);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['host_name']));
 
+$pdf->setXY(40, 141);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['mac_wlan']));
+
+$pdf->setXY(40, 137);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['mac_lan']));
+
+$pdf->setXY(181, 48.2);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['num_factura']));
+
+$pdf->setXY(181, 56);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['num_pedido']));
+
+$pdf->setXY(176, 64);
+$pdf->Cell(0, 10,'$'.htmlspecialchars($equipo['costo']));
+
+$pdf->setXY(51, 109);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['licencia_w']));
+
+$pdf->setXY(51, 117.4);
+$pdf->Cell(0, 10,htmlspecialchars($equipo['paquete_of']));
 $y_position_mantenimiento = 76; 
 
 $query_mantenimiento = "
@@ -148,9 +169,9 @@ $mantenimientos = $stmt_mantenimiento->fetchAll(PDO::FETCH_ASSOC);
 
 $y_position_mantenimiento = 76; // Aquí ajustas la posición inicial para los mantenimientos
 
-// Iterar sobre todos los mantenimientos
+
 foreach ($mantenimientos as $mantenimiento) {
-    // Formatear la fecha
+    
     $fecha_inicio = date('d/m/Y', strtotime($mantenimiento['fecha_inicio']));
     
     $pdf->setXY(98, $y_position_mantenimiento);
@@ -161,23 +182,21 @@ foreach ($mantenimientos as $mantenimiento) {
 
     $y_position_mantenimiento += 4; 
 }
-$y_position_cambios = 157;  // Posición inicial para los cambios
+$y_position_cambios = 157;  
 
-// Iterar sobre todos los cambios
+
 foreach ($cambios as $cambio) {
-    // Formatear la fecha
     $fecha_cambio = date('d/m/Y', strtotime($cambio['fecha_cambio']));
     
-    // Mostrar la fecha
     $pdf->setXY(174, $y_position_cambios);
     $pdf->Cell(0, 10, htmlspecialchars($fecha_cambio));   
 
-    // Mostrar el cambio
+    
     $pdf->setXY(98, $y_position_cambios);
     $pdf->Cell(0, 10, htmlspecialchars($cambio['cambio']));
 
-    // Ajustar la posición para el siguiente cambio
-    $y_position_cambios += 5; // Ajusta este valor según el espacio necesario entre los cambios
+    
+    $y_position_cambios += 5; 
 }
 
 

@@ -13,7 +13,7 @@ if ($conn->connect_error) {
 if (isset($_GET['serial'])) {
     $serial = $_GET['serial'];
 
-    $sql = "SELECT serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, procesador, fecha_compra, costo FROM equipos WHERE serial = ?";
+    $sql = "SELECT serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, procesador, fecha_compra, costo, num_factura, num_pedido, host_name, mac_lan, mac_wlan, licencia_w, paquete_of FROM equipos WHERE serial = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $serial);  // Asegúrate de usar "s" para los valores de texto como serial
     $stmt->execute();

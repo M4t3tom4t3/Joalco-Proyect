@@ -239,6 +239,9 @@
                                                     <div><strong>Fecha De Compra:</strong> <span
                                                             id="fecha_compra"></span></div>
                                                     <div><strong>Costo:</strong> <span id="costo"></span></div>
+                                                    <div><strong>Host:</strong> <span id="host_name"></span></div>
+                                                    <div><strong>MAC LAN:</strong> <span id="mac_lan"></span></div>
+                                                    <div><strong>MAC WLAN:</strong> <span id="mac_wlan"></span></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -338,6 +341,43 @@
                                                             <input type="text" class="form-control" id="costox"
                                                                 name="costox">
                                                         </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">NUMERO DE FACTURA</label>
+                                                            <input type="text" class="form-control" id="num_facturax"
+                                                                name="num_facturax">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">NUMERO DE PEDIDO</label>
+                                                            <input type="text" class="form-control" id="num_pedidox"
+                                                                name="num_pedidox">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">HOST NAME</label>
+                                                            <input type="text" class="form-control" id="host_namex"
+                                                                name="host_namex">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">MAC LAN</label>
+                                                            <input type="text" class="form-control" id="mac_lanx"
+                                                                name="mac_lanx">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">MAC WLAN</label>
+                                                            <input type="text" class="form-control" id="mac_wlanx"
+                                                                name="mac_wlanx">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">LICENCIA WINDOWS</label>
+                                                            <input type="text" class="form-control" id="licencia_wx"
+                                                                name="licencia_wx">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">PAQUETE OFFICE</label>
+                                                            <input type="text" class="form-control" id="paquete_ofx"
+                                                                name="paquete_ofx">
+                                                        </div>
+
+                                                        
                                                         <button type="submit" class="btn btn-success">Guardar</button>
                                                     </form>
                                                 </div>
@@ -455,6 +495,13 @@
                             $('#procesadorx').val(data.procesador);
                             $('#fecha_comprax').val(data.fecha_compra);
                             $('#costox').val(data.costo);
+                            $('#num_facturax').val(data.num_factura);
+                            $('#num_pedidox').val(data.num_pedido);
+                            $('#host_namex').val(data.host_name);
+                            $('#mac_lanx').val(data.mac_lan);
+                            $('#mac_wlanx').val(data.mac_wlan);
+                            $('#licencia_wx').val(data.licencia_w);
+                            $('#paquete_ofx').val(data.paquete_of);
                         }
                     } catch (e) {
                         console.log("Error al procesar la respuesta:", e);
@@ -535,6 +582,9 @@
                             $('#procesador').text(data.procesador);
                             $('#fecha_compra').text(data.fecha_compra);
                             $('#costo').text(data.costo);
+                            $('#host_name').text(data.host_name);
+                            $('#mac_lan').text(data.mac_lan);
+                            $('#mac_wlan').text(data.mac_wlan);
                         }
                     } catch (e) {
                         console.log("Error al procesar la respuesta:", e);

@@ -19,7 +19,7 @@ if (isset($_POST['serial'])) {
     // Verificar que el serial está siendo recibido
     error_log("Serial recibido: " . $serial);
 
-    $sql = "SELECT activo_fijo, estado, ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, procesador, fecha_compra, costo FROM equipos WHERE serial = ?";
+    $sql = "SELECT activo_fijo, estado, ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, procesador, fecha_compra, costo, host_name, mac_lan, mac_wlan FROM equipos WHERE serial = ?";
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $serial); 
