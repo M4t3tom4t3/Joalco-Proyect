@@ -96,7 +96,7 @@ if (!empty($image_path_usuario_4) && file_exists($image_path_usuario_4)) {
 } else {
     // Si no existe la firma, mostrar un mensaje
     $pdf->setXY(40, 235);
-    $pdf->Cell(0, 10, "Firma no disponible.");
+    $pdf->Cell(0, 10, "");
 }
 
 

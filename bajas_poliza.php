@@ -67,6 +67,13 @@
                 </li>
 
                 <li class="sidebar-item">
+                    <a href="bajas_poliza.php" class="sidebar-link">
+                        <i class="bi bi-bank2"></i>
+                        <span>Bajas y Polizas</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                         data-bs-target="#impresoras" aria-expanded="false" aria-controls="impresoras">
                         <i class="lni lni-printer"></i>
@@ -108,8 +115,6 @@
                         <h3 class="fw-bold fs-4 mb-3"></h3>
                         <div class="row">
                             <div class="container mt-4">
-                            <a href="generar_reporte.php?tabla=tablaX" class="btn btn-outline-info me-md-2">Generar Reporte PDF (Equipos de Baja)</a>
-<a href="generar_reporte.php?tabla=tablaY" class="btn btn-outline-info me-md-2">Generar Reporte PDF (Equipos en Poliza)</a>
 
                                 <!-- Selector para elegir la tabla -->
                                 <div class="mb-3">
@@ -124,18 +129,14 @@
                                 <div id="tablaX" class="table-responsive" style="display: none;">
                                     <h4>Equipos de Baja</h4>
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <form class="d-flex" role="search" method="get" action="list_eq.php">
-                                            <input class="form-control me-2" type="search"
-                                                placeholder="Buscar por Placa o Serial" aria-label="Search"
-                                                name="search"
-                                                value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-                                            <button class="btn btn-outline-primary" type="submit">Buscar</button>
-                                        </form>
-                                        <a href="list_eq.php" class="btn btn-outline-success me-md-2">
-                                            ⟳
-                                        </a>
-                                        <a href="agregar_equipo.php" class="btn btn-success me-md-2">Agregar</a>
+                                        <a href="generar_reporte.php?tabla=tablaX"
+                                            class="btn btn-outline-danger me-md-2"><i
+                                                class="bi bi-filetype-pdf"></i></a>
+                                        <a href="generar_reporteE.php?tabla=tablaX"
+                                            class="btn btn-outline-success me-md-2"><i
+                                                class="bi bi-file-earmark-spreadsheet"></i></a>
                                     </div>
+
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
@@ -144,6 +145,7 @@
                                                 <th>Marca</th>
                                                 <th>Modelo</th>
                                                 <th>Fecha de Compra</th>
+                                                <th>Años</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -168,12 +170,21 @@
                                             if ($result->num_rows > 0) {
                                                 // Mostrar cada fila de resultados
                                                 while ($row = $result->fetch_assoc()) {
+                                                    $fechaCompra = new DateTime($row["fecha_compra"]);
+                                                    $fechaActual = new DateTime(); // Fecha actual
+                                                    $diferencia = $fechaActual->diff($fechaCompra); // Calcula la diferencia
+                                                    $años = $diferencia->y;
                                                     echo "<tr>";
                                                     echo "<td>" . $row["serial"] . "</td>";
                                                     echo "<td>" . $row["nombre_equipo"] . "</td>";
                                                     echo "<td>" . $row["marca"] . "</td>";
                                                     echo "<td>" . $row["modelo"] . "</td>";
                                                     echo "<td>" . $row["fecha_compra"] . "</td>";
+                                                    if ($años > 3) {
+                                                        echo "<td><span class='badge text-bg-danger'>" . $años . " años</span></td>"; // Badge rojo para > 3 años
+                                                    } else {
+                                                        echo "<td><span class='badge text-bg-primary'>" . $años . " años</span></td>"; // Badge azul para <= 3 años
+                                                    }
                                                     echo "</tr>";
                                                 }
                                             } else {
@@ -187,19 +198,16 @@
                                 <!-- Tabla Y -->
                                 <div id="tablaY" class="table-responsive" style="display: none;">
                                     <h4>Equipos en Poliza</h4>
+
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <form class="d-flex" role="search" method="get" action="list_eq.php">
-                                            <input class="form-control me-2" type="search"
-                                                placeholder="Buscar por Placa o Serial" aria-label="Search"
-                                                name="search"
-                                                value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-                                            <button class="btn btn-outline-primary" type="submit">Buscar</button>
-                                        </form>
-                                        <a href="list_eq.php" class="btn btn-outline-success me-md-2">
-                                            ⟳
-                                        </a>
-                                        <a href="agregar_equipo.php" class="btn btn-success me-md-2">Agregar</a>
+                                        <a href="generar_reporte.php?tabla=tablaY"
+                                            class="btn btn-outline-danger me-md-2"><i
+                                                class="bi bi-filetype-pdf"></i></a>
+                                        <a href="generar_reporteE.php?tabla=tablaY"
+                                            class="btn btn-outline-success me-md-2"><i
+                                                class="bi bi-file-earmark-spreadsheet"></i></a>
                                     </div>
+
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
@@ -208,6 +216,7 @@
                                                 <th>Marca</th>
                                                 <th>Modelo</th>
                                                 <th>Fecha de Compra</th>
+                                                <th>Años</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -233,11 +242,20 @@
                                                 // Mostrar cada fila de resultados
                                                 while ($row = $result->fetch_assoc()) {
                                                     echo "<tr>";
+                                                    $fechaCompra = new DateTime($row["fecha_compra"]);
+                                                    $fechaActual = new DateTime(); // Fecha actual
+                                                    $diferencia = $fechaActual->diff($fechaCompra); // Calcula la diferencia
+                                                    $años = $diferencia->y;
                                                     echo "<td>" . $row["serial"] . "</td>";
                                                     echo "<td>" . $row["nombre_equipo"] . "</td>";
                                                     echo "<td>" . $row["marca"] . "</td>";
                                                     echo "<td>" . $row["modelo"] . "</td>";
                                                     echo "<td>" . $row["fecha_compra"] . "</td>";
+                                                    if ($años > 3) {
+                                                        echo "<td><span class='badge text-bg-danger'>" . $años . " años</span></td>"; // Badge rojo para > 3 años
+                                                    } else {
+                                                        echo "<td><span class='badge text-bg-primary'>" . $años . " años</span></td>"; // Badge azul para <= 3 años
+                                                    }
                                                     echo "</tr>";
                                                 }
                                             } else {
@@ -246,6 +264,7 @@
                                             ?>
                                         </tbody>
                                     </table>
+                                    
                                 </div>
 
                             </div>

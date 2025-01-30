@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mac_wlan = $_POST['mac_wlanx'];
         $licencia_w = $_POST['licencia_wx'];
         $paquete_of = $_POST['paquete_ofx'];
+        $poliza = $_POST['poliza'];
 
         // Escapar los valores para evitar inyecciones SQL
         $serial = $conn->real_escape_string($serial);
@@ -53,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mac_wlan = $conn->real_escape_string($mac_wlan);
         $licencia_w = $conn->real_escape_string($licencia_w);
         $paquete_of = $conn->real_escape_string($paquete_of);
+        $poliza = $conn->real_escape_string($poliza);
 
         // Ahora, realiza la consulta de actualización
         $sql = "UPDATE equipos SET marca = '$marca', modelo = '$modelo', nombre_equipo = '$nombre_equipo',
@@ -60,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ip_wlan = '$ip_wlan',usuario_dominio = '$usuario_dominio', hv = '$hv', sistema_operativo = '$sistema_operativo', ram = '$ram',
                 disco = '$disco', procesador = '$procesador', fecha_compra = '$fecha_compra', costo = '$costo', num_factura = '$num_factura',
                 num_pedido = '$num_pedido', host_name = '$host_name', mac_lan = '$mac_lan', mac_wlan = '$mac_wlan',
-                licencia_w = '$licencia_w', paquete_of = '$paquete_of'
+                licencia_w = '$licencia_w', paquete_of = '$paquete_of', poliza = '$poliza'
                 WHERE serial = '$serial'";
 
         // Ejecutar la consulta

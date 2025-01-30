@@ -15,13 +15,15 @@ if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
-// Determinar qué tabla seleccionar
+$mensaje = '';
 if (isset($_GET['tabla']) && $_GET['tabla'] == 'tablaX') {
     $estado = 'DE BAJA';
     $sql = "SELECT * FROM equipos WHERE estado = '$estado'";
+    $mensaje = 'EQUIPOS DE BAJA';
 } else if (isset($_GET['tabla']) && $_GET['tabla'] == 'tablaY') {
     $poliza = 'SI';
     $sql = "SELECT * FROM equipos WHERE poliza = '$poliza'";
+    $mensaje = '  EQUIPOS EN POLIZA';
 } else {
     die("Tabla no válida");
 }
@@ -36,9 +38,15 @@ $tplIdx = $pdf->importPage(1);
 $pdf->useTemplate($tplIdx);
 $pdf->SetFont('Arial', '', 8);
 
+$pdf->SetY(10.5); 
+$pdf->SetX(39); 
+$pdf->Cell(0, 10, $mensaje, 0, 1, 'C'); 
 // Mover la tabla hacia abajo y a la derecha
 $pdf->SetY(23.2); // Ajustar la posición hacia abajo
 $pdf->SetX(15.5); // Ajustar la posición hacia la derecha
+
+
+
 
 // Encabezado de la tabla
 $pdf->Cell(45, 6, 'Serial', 1);
@@ -70,8 +78,10 @@ if ($result->num_rows > 0) {
             $nombreCompleto = 'No asignado';
             $departamento = 'No asignado';
         }
+        
         $pdf->SetX(15.5);
         // Imprimir los datos en el PDF
+        
         $pdf->Cell(45, 10, $row['serial'], 1);
         $pdf->Cell(25, 10, $row['nombre_equipo'], 1);
         $pdf->Cell(20, 10, $row['marca'], 1);

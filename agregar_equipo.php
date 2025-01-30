@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $mac_wlan = $_POST['mac_wlan'];
     $licencia_w = $_POST['licencia_w'];
     $paquete_of = $_POST['paquete_of'];
-    
+
     // Manejo del archivo de imagen
     if (isset($_FILES['ruta_img']) && $_FILES['ruta_img']['error'] == 0) {
         $target_dir = "Equipos/";
@@ -53,15 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Comprobamos si ruta_img es NULL o una cadena vacía
-if ($ruta_img === null) {
-    $ruta_img = "NULL"; // Si no se subió imagen, asignamos NULL
-} else {
-    // Si se subió imagen, lo dejamos como está
-    $ruta_img = "'$ruta_img'"; // Aseguramos que esté entre comillas
-}
+    if ($ruta_img === null) {
+        $ruta_img = "NULL"; // Si no se subió imagen, asignamos NULL
+    } else {
+        // Si se subió imagen, lo dejamos como está
+        $ruta_img = "'$ruta_img'"; // Aseguramos que esté entre comillas
+    }
 
-// Preparar la consulta SQL
-$sql = "INSERT INTO equipos (
+    // Preparar la consulta SQL
+    $sql = "INSERT INTO equipos (
             serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, 
             ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, 
             procesador, fecha_compra, costo, ruta_img, num_factura, num_pedido, 
@@ -74,11 +74,11 @@ $sql = "INSERT INTO equipos (
             '$mac_lan', '$mac_wlan', '$licencia_w', '$paquete_of'
         )";
 
-if ($conn->query($sql) === TRUE) {
-    echo "<script>alert('Equipo agregado exitosamente.'); window.location.href = 'list_eq.php';</script>";
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
-}
+    if ($conn->query($sql) === TRUE) {
+        echo "<script>alert('Equipo agregado exitosamente.'); window.location.href = 'list_eq.php';</script>";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
 
 }
 ?>
@@ -223,7 +223,11 @@ if ($conn->query($sql) === TRUE) {
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="estado" class="form-label">Estado</label>
-                                            <input type="text" class="form-control" id="estado" name="estado" required>
+                                            <select class="form-control" id="estado" name="estado" required>
+                                                <option value="" disabled selected>Seleccione un estado</option>
+                                                <option value="DE BAJA">DE BAJA</option>
+                                                <option value="EN USO">EN USO</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="ip_lan" class="form-label">IP LAN</label>
@@ -286,8 +290,7 @@ if ($conn->query($sql) === TRUE) {
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="num_pedido" class="form-label">Numero de Pedido</label>
-                                            <input type="text" class="form-control" id="num_pedido"
-                                                name="num_pedido">
+                                            <input type="text" class="form-control" id="num_pedido" name="num_pedido">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="host_name" class="form-label">Host Name</label>
@@ -302,8 +305,7 @@ if ($conn->query($sql) === TRUE) {
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="mac_wlan" class="form-label">MAC WLAN</label>
-                                            <input type="text" class="form-control" id="mac_wlan"
-                                                name="mac_wlan">
+                                            <input type="text" class="form-control" id="mac_wlan" name="mac_wlan">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="licencia_w" class="form-label">Licencia Windows</label>

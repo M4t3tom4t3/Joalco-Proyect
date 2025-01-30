@@ -67,6 +67,13 @@
                 </li>
 
                 <li class="sidebar-item">
+                    <a href="bajas_poliza.php" class="sidebar-link">
+                    <i class="bi bi-bank2"></i>
+                        <span>Bajas y Polizas</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                         data-bs-target="#impresoras" aria-expanded="false" aria-controls="impresoras">
                         <i class="lni lni-printer"></i>

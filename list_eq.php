@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario</title>
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
@@ -61,6 +62,12 @@
                     <a href="list_pcpt.php" class="sidebar-link">
                         <i class="lni lni-book"></i>
                         <span>Hoja de Vida</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="bajas_poliza.php" class="sidebar-link">
+                        <i class="bi bi-bank2"></i>
+                        <span>Bajas y Polizas</span>
                     </a>
                 </li>
 
@@ -258,6 +265,12 @@
                                                 <div class="modal-body">
                                                     <form id="editEquipoForm" enctype="multipart/form-data">
                                                         <input type="hidden" id="serial" name="serial">
+
+                                                        <div class="mb-3">
+                                                            <label for="poliza" class="form-label">Poliza</label>
+                                                            <input type="text" class="form-control" id="polizax"
+                                                                name="polizax">
+                                                        </div>
                                                         <div class="mb-3">
                                                             <label for="marca" class="form-label">Marca</label>
                                                             <input type="text" class="form-control" id="marca"
@@ -289,6 +302,7 @@
                                                             <input type="text" class="form-control" id="estadox"
                                                                 name="estadox">
                                                         </div>
+
                                                         <div class="mb-3">
                                                             <label for="ip_lan" class="form-label">IP LAN</label>
                                                             <input type="text" class="form-control" id="ip_lanx"
@@ -342,12 +356,14 @@
                                                                 name="costox">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="ip_lan" class="form-label">NUMERO DE FACTURA</label>
+                                                            <label for="ip_lan" class="form-label">NUMERO DE
+                                                                FACTURA</label>
                                                             <input type="text" class="form-control" id="num_facturax"
                                                                 name="num_facturax">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="ip_lan" class="form-label">NUMERO DE PEDIDO</label>
+                                                            <label for="ip_lan" class="form-label">NUMERO DE
+                                                                PEDIDO</label>
                                                             <input type="text" class="form-control" id="num_pedidox"
                                                                 name="num_pedidox">
                                                         </div>
@@ -367,17 +383,19 @@
                                                                 name="mac_wlanx">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="ip_lan" class="form-label">LICENCIA WINDOWS</label>
+                                                            <label for="ip_lan" class="form-label">LICENCIA
+                                                                WINDOWS</label>
                                                             <input type="text" class="form-control" id="licencia_wx"
                                                                 name="licencia_wx">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="ip_lan" class="form-label">PAQUETE OFFICE</label>
+                                                            <label for="ip_lan" class="form-label">PAQUETE
+                                                                OFFICE</label>
                                                             <input type="text" class="form-control" id="paquete_ofx"
                                                                 name="paquete_ofx">
                                                         </div>
 
-                                                        
+
                                                         <button type="submit" class="btn btn-success">Guardar</button>
                                                     </form>
                                                 </div>
@@ -502,6 +520,7 @@
                             $('#mac_wlanx').val(data.mac_wlan);
                             $('#licencia_wx').val(data.licencia_w);
                             $('#paquete_ofx').val(data.paquete_of);
+                            $('#polizax').val(data.poliza);
                         }
                     } catch (e) {
                         console.log("Error al procesar la respuesta:", e);
