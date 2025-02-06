@@ -1,4 +1,12 @@
 <?php
+
+session_start();
+
+if (!isset($_SESSION['usuario'])) {
+    header("Location: inicio.html");
+    exit();
+}
+
 include('conexion.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

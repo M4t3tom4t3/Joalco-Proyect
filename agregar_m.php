@@ -1,5 +1,11 @@
 <?php
-// Conexión a la base de datos
+session_start();
+
+if (!isset($_SESSION['usuario'])) {
+    header("Location: inicio.html");
+    exit();
+}
+
 $servername = "localhost";
 $username = "root";
 $password = "";
