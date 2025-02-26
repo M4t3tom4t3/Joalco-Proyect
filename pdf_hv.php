@@ -199,6 +199,46 @@ foreach ($cambios as $cambio) {
     $y_position_cambios += 5; 
 }
 
+if ($serial) {
+    $pdo = new PDO("mysql:host=localhost;dbname=jp", "root", "");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Obtener los backups para el serial específico
+    $query_backup = "SELECT fecha_b, tecnico_b, disco
+                     FROM backups 
+                     WHERE fk_serial = :serial";
+    $stmt_backup = $pdo->prepare($query_backup);
+    $stmt_backup->execute(['serial' => $serial]);
+
+    // Obtener todos los resultados
+    $backups = $stmt_backup->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($backups)) {
+        echo "No hay backups disponibles para este serial.";
+    } else {
+        // Procesar los backups y generar el PDF
+        $y_position_backups = 157; 
+
+        foreach ($backups as $backup) {
+            $fecha_backup = date('d/m/Y', strtotime($backup['fecha_b']));
+            
+            // Asumiendo que $pdf es un objeto de la clase FPDF o TCPDF
+            $pdf->setXY(16, $y_position_backups);
+            $pdf->Cell(0, 10, htmlspecialchars($fecha_backup));   
+            
+            $pdf->setXY(32, $y_position_backups);
+            $pdf->Cell(0, 10, htmlspecialchars($backup['tecnico_b']));
+
+            $pdf->setXY(68, $y_position_backups);
+            $pdf->Cell(0, 10, htmlspecialchars($backup['disco']));
+            
+            $y_position_backups += 5; 
+        }
+    }
+} else {
+    echo "El serial no se proporcionó.";
+}
+ 
 
 foreach ($usuarios_ids as $id_usuario) {
     $query_user = "SELECT nombre, apellido, cargo, departamento FROM usuarios WHERE ID_usuario = :id_usuario";
@@ -221,7 +261,8 @@ foreach ($usuarios_ids as $id_usuario) {
 
     $query_asignacion_usuario = "SELECT estado_asig, fecha_asignacion, numero_consecutivo
                                  FROM asignacion 
-                                 WHERE FK_id = :id_usuario AND FK_serial = :serial";
+                                 WHERE FK_id = :id_usuario AND FK_serial = :serial
+                                 ORDER BY fecha_asignacion DESC"; 
     $stmt_asignacion_usuario = $pdo->prepare($query_asignacion_usuario);
     $stmt_asignacion_usuario->execute(['id_usuario' => $id_usuario, 'serial' => $serial]);
 
@@ -231,13 +272,13 @@ foreach ($usuarios_ids as $id_usuario) {
         continue; 
     }
     $fecha_asignacion = date('d/m/Y', strtotime($asignacion_usuario['fecha_asignacion']));
-$pdf->setXY(158, $y_position);  
-$pdf->Cell(0, 10, htmlspecialchars($fecha_asignacion));
+        $pdf->setXY(158, $y_position);  
+        $pdf->Cell(0, 10, htmlspecialchars($fecha_asignacion));
 
 
     $pdf->setXY(130, $y_position);  
     $pdf->Cell(0, 10, 'A-' . htmlspecialchars($asignacion_usuario['numero_consecutivo']));
-$y_position += 4;
+    $y_position += 4;
 }
 
 

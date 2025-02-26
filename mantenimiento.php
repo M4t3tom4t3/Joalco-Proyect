@@ -136,7 +136,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -163,7 +163,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <table class="table table-striped">
                                     <thead>
                                         <tr class="highlight">
-                                            <th scope="col">Consecutivo</th>
+                                            <th scope="col">Consecutivo carta de asignacion</th>
                                             <th scope="col">Fecha de Inicio</th>
                                             <th scope="col">Fecha de Finalizacion</th>
                                             <th scope="col">Usuario</th>
@@ -195,11 +195,11 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        $sql = "SELECT m.fk_numero_consecutivo, m.fecha_inicio, m.fecha_fin, a.FK_id 
+                                        $sql = "SELECT m.fk_numero_consecutivo, m.fecha_inicio, m.fecha_fin, a.FK_id, u.nombre  
                                         FROM mantenimiento m
                                         JOIN asignacion a ON m.fk_numero_consecutivo = a.numero_consecutivo
                                         JOIN usuarios u ON a.FK_id = u.ID_usuario
-                                        WHERE m.fk_numero_consecutivo LIKE ? 
+                                        WHERE m.fk_numero_consecutivo LIKE ?
                                         LIMIT $start_from, $results_per_page";                                        $stmt = $conn->prepare($sql);
                                         $search_term = "%". $search . "%";
                                         $stmt->bind_param("s", $search_term);
@@ -211,7 +211,7 @@ if (!isset($_SESSION['usuario'])) {
                                                 echo "<td> A-" . htmlspecialchars($row['fk_numero_consecutivo']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['fecha_inicio']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['fecha_fin']) . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['FK_id']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
                                                 echo "<td>
                                                 <a href='pdf_m.php?id=" . $row['FK_id'] . "' class='btn btn-warning btn-sm edit-btn'>
                                                  <i class='lni lni-download'></i>
@@ -235,7 +235,6 @@ if (!isset($_SESSION['usuario'])) {
 
                                         ?>
                                     </tbody>
-
                                 </table>
                                 <nav aria-label="Page navigation example">
                                     <ul class="pagination justify-content-center">

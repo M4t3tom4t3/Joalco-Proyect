@@ -32,6 +32,7 @@ function generarExcel($conn, $estado = '', $poliza = '') {
     $sheet->setCellValue('E1', 'Fecha de Compra');
     $sheet->setCellValue('F1', 'Nombre Completo');
     $sheet->setCellValue('G1', 'Departamento');
+    $sheet->setCellValue('G1', 'Años');
 
     // Determinar la consulta según el tipo de reporte
     if ($estado) {
@@ -66,6 +67,10 @@ function generarExcel($conn, $estado = '', $poliza = '') {
                 $nombreCompleto = 'No asignado';
                 $departamento = 'No asignado';
             }
+            $fechaCompra = new DateTime($row["fecha_compra"]);
+            $fechaActual = new DateTime(); // Fecha actual
+            $diferencia = $fechaActual->diff($fechaCompra); // Calcula la diferencia
+            $años = $diferencia->y;
 
             // Llenar los datos en las celdas
             $sheet->setCellValue('A' . $rowNum, $row['serial']);
@@ -75,7 +80,7 @@ function generarExcel($conn, $estado = '', $poliza = '') {
             $sheet->setCellValue('E' . $rowNum, $row['fecha_compra']);
             $sheet->setCellValue('F' . $rowNum, $nombreCompleto);
             $sheet->setCellValue('G' . $rowNum, $departamento);
-
+            $sheet->setCellValue('h' . $rowNum, $años);
             // Incrementar la fila
             $rowNum++;
         }

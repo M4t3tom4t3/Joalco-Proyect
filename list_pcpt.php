@@ -30,7 +30,9 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -110,7 +112,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -204,6 +206,10 @@ if (!isset($_SESSION['usuario'])) {
                                                 </a>
 
                                                 <a href='#' class='btn btn-outline-success btn-sm' data-bs-toggle='modal' data-bs-target='#exampleModal' data-id='" . $row['serial'] . "'>
+                                                <i class='lni lni-plus'></i>
+                                                </a>
+
+                                                <a href='#' class='btn btn-outline-warning btn-sm' data-bs-toggle='modal' data-bs-target='#BackupModal' data-id='" . $row['serial'] . "'>
                                                 <i class='lni lni-plus'></i>
                                                 </a>
 
@@ -312,6 +318,40 @@ if (!isset($_SESSION['usuario'])) {
                                     </div>
                                 </div>
 
+                                <div class="modal fade" id="BackupModal" tabindex="-1" aria-labelledby="BackupModal"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="BackupModal">Registrar Backup</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="BackupForm">
+                                                    <input type="hidden" id="serial" name="serial" value="" />
+                                                    <div class="mb-3">
+                                                        <label for="cambio" class="form-label">Fecha</label>
+                                                        <input type="date" class="form-control" id="fecha_b"
+                                                            name="fecha_b" required />
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="cambio" class="form-label">Tecnico</label>
+                                                        <input type="text" class="form-control" id="tecnico_b"
+                                                            name="tecnico_b" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="cambio" class="form-label">Disco</label>
+                                                        <input type="text" class="form-control" id="disco"
+                                                            name="disco" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -344,6 +384,35 @@ if (!isset($_SESSION['usuario'])) {
             });
         });
         $('#exampleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); 
+            var serial = button.data('id'); 
+
+            var modal = $(this);
+            modal.find('#serial').val(serial); 
+        });
+
+    </script>
+    <script>
+       $('#BackupForm').on('submit', function (event) {
+    event.preventDefault();
+    var formData = $(this).serialize();
+
+    $.ajax({
+        url: 'agregar_backup.php',
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            alert('Backup registrado correctamente');
+            $('#BackupModal').modal('hide');
+            location.reload();
+        },
+        error: function () {
+            alert('Hubo un error al guardar el cambio.');
+        }
+    });
+});
+
+        $('#BackupModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget); 
             var serial = button.data('id'); 
 

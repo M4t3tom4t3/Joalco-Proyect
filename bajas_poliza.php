@@ -31,7 +31,9 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -112,7 +114,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -154,52 +156,72 @@ if (!isset($_SESSION['usuario'])) {
                                                 <th>Marca</th>
                                                 <th>Modelo</th>
                                                 <th>Fecha de Compra</th>
+                                                <th>Hoja de Vida</th>
+                                                <th>Costo</th>
+                                                <th>Usuario</th>
+                                                <th>Departamento</th>
                                                 <th>Años</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            $servername = "localhost";
-                                            $username = "root";
-                                            $password = "";
-                                            $dbname = "jp";
+                                        <?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "jp";
 
-                                            $conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-                                            // Verificar la conexión
-                                            if ($conn->connect_error) {
-                                                die("Conexión fallida: " . $conn->connect_error);
-                                            }
+// Verificar la conexión
+if ($conn->connect_error) {
+    die("Conexión fallida: " . $conn->connect_error);
+}
 
-                                            // Realizamos la consulta para los equipos en poliza
-                                            $sql = "SELECT * FROM equipos WHERE estado = 'DE BAJA'";
-                                            $result = $conn->query($sql);
+// Realizamos la consulta para los equipos en poliza junto con el último usuario asignado y el departamento
+$sql = "
+    SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.fecha_compra, e.hv, e.costo,
+           u.nombre AS usuario_nombre, u.departamento, 
+           MAX(a.fecha_asignacion) AS fecha_ultima_asignacion
+    FROM equipos e
+    LEFT JOIN asignacion a ON e.serial = a.FK_serial
+    LEFT JOIN usuarios u ON a.FK_id = u.ID_usuario
+    WHERE e.estado = 'DE BAJA'
+    GROUP BY e.serial, e.nombre_equipo, e.marca, e.modelo, e.fecha_compra, e.hv, e.costo, u.nombre, u.departamento
+";
+$result = $conn->query($sql);
 
-                                            // Verificamos si la consulta devolvió resultados
-                                            if ($result->num_rows > 0) {
-                                                // Mostrar cada fila de resultados
-                                                while ($row = $result->fetch_assoc()) {
-                                                    $fechaCompra = new DateTime($row["fecha_compra"]);
-                                                    $fechaActual = new DateTime(); // Fecha actual
-                                                    $diferencia = $fechaActual->diff($fechaCompra); // Calcula la diferencia
-                                                    $años = $diferencia->y;
-                                                    echo "<tr>";
-                                                    echo "<td>" . $row["serial"] . "</td>";
-                                                    echo "<td>" . $row["nombre_equipo"] . "</td>";
-                                                    echo "<td>" . $row["marca"] . "</td>";
-                                                    echo "<td>" . $row["modelo"] . "</td>";
-                                                    echo "<td>" . $row["fecha_compra"] . "</td>";
-                                                    if ($años > 3) {
-                                                        echo "<td><span class='badge text-bg-danger'>" . $años . " años</span></td>"; // Badge rojo para > 3 años
-                                                    } else {
-                                                        echo "<td><span class='badge text-bg-primary'>" . $años . " años</span></td>"; // Badge azul para <= 3 años
-                                                    }
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='7'>No hay equipos en poliza.</td></tr>";
-                                            }
-                                            ?>
+// Verificamos si la consulta devolvió resultados
+if ($result->num_rows > 0) {
+    // Mostrar cada fila de resultados
+    while ($row = $result->fetch_assoc()) {
+        $fechaCompra = new DateTime($row["fecha_compra"]);
+        $fechaActual = new DateTime(); // Fecha actual
+        $diferencia = $fechaActual->diff($fechaCompra); // Calcula la diferencia
+        $años = $diferencia->y;
+        
+        echo "<tr>";
+        echo "<td>" . $row["serial"] . "</td>";
+        echo "<td>" . $row["nombre_equipo"] . "</td>";
+        echo "<td>" . $row["marca"] . "</td>";
+        echo "<td>" . $row["modelo"] . "</td>";
+        echo "<td>" . $row["fecha_compra"] . "</td>";
+        echo "<td>" . $row["hv"] . "</td>";
+        echo "<td>" . $row["costo"] . "</td>";
+        echo "<td>" . $row["usuario_nombre"] . "</td>"; // Usuario asignado
+        echo "<td>" . $row["departamento"] . "</td>"; // Departamento
+
+        if ($años > 3) {
+            echo "<td><span class='badge text-bg-danger'>" . $años . " años</span></td>"; // Badge rojo para > 3 años
+        } else {
+            echo "<td><span class='badge text-bg-primary'>" . $años . " años</span></td>"; // Badge azul para <= 3 años
+        }
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='9'>No hay equipos en poliza.</td></tr>";
+}
+?>
+
                                         </tbody>
                                     </table>
                                 </div>

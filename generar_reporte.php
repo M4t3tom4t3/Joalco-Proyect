@@ -79,12 +79,19 @@ if ($result->num_rows > 0) {
             $departamento = 'No asignado';
         }
         
+        $maxLength = 9; 
+
+
         $pdf->SetX(15.5);
-        // Imprimir los datos en el PDF
+
+    $marca = $row['marca'];
+    if (strlen($marca) > $maxLength) {
+    $marca = substr($marca, 0, $maxLength) . '...'; 
+}
         
         $pdf->Cell(45, 10, $row['serial'], 1);
         $pdf->Cell(25, 10, $row['nombre_equipo'], 1);
-        $pdf->Cell(20, 10, $row['marca'], 1);
+        $pdf->Cell(20, 10, $marca, 1);
         $pdf->Cell(27, 10, $row['modelo'], 1);
         $pdf->Cell(25, 10, $row['fecha_compra'], 1);
         $pdf->Cell(25, 10, '$'.$row['costo'], 1);

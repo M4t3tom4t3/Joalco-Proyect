@@ -2,16 +2,11 @@
 
 session_start();
 
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-
 if (!isset($_SESSION['usuario'])) {
     header("Location: inicio.html");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -25,6 +20,7 @@ if (!isset($_SESSION['usuario'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="INVENTARIO.ico">
 
 </head>
 
@@ -36,7 +32,9 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -193,31 +191,11 @@ if (!isset($_SESSION['usuario'])) {
             </main>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="script.js"></script>
-    <script>
-        document.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        // Usamos el valor del atributo `data-password` para obtener la contraseña
-        const password = btn.getAttribute('data-password');
-        
-        // Crear un campo de texto temporal para copiar el valor
-        const tempInput = document.createElement('input');
-        document.body.appendChild(tempInput);
-        tempInput.value = password;
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        
-        // Opcional: Puedes agregar una notificación visual para indicar que se copió correctamente
-        alert("Contraseña copiada ");
-    });
-});
-
-    </script>
+    
 </body>
 
 </html>

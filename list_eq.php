@@ -30,7 +30,9 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -108,7 +110,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -122,7 +124,7 @@ if (!isset($_SESSION['usuario'])) {
                         </div>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <form class="d-flex" role="search" method="get" action="list_eq.php">
-                                <input class="form-control me-2" type="search" placeholder="Buscar por Placa o Serial"
+                                <input class="form-control me-2" type="search" placeholder="Placa, Serial o Equipo"
                                     aria-label="Search" name="search"
                                     value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                                 <button class="btn btn-outline-primary" type="submit">Buscar</button>
@@ -173,10 +175,10 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        $sql = "SELECT serial, marca, modelo, nombre_equipo, placa, activo_fijo, ruta_img FROM equipos WHERE placa LIKE ? OR serial LIKE ? LIMIT $start_from, $results_per_page";
+                                        $sql = "SELECT serial, marca, modelo, nombre_equipo, placa, activo_fijo, ruta_img FROM equipos WHERE placa LIKE ? OR serial LIKE ? OR nombre_equipo LIKE ? LIMIT $start_from, $results_per_page";
                                         $stmt = $conn->prepare($sql);
                                         $search_term = "%" . $search . "%";
-                                        $stmt->bind_param("ss", $search_term, $search_term);
+                                        $stmt->bind_param("sss", $search_term, $search_term, $search_term);
                                         $stmt->execute();
 
                                         $result = $stmt->get_result();
@@ -215,9 +217,9 @@ if (!isset($_SESSION['usuario'])) {
                                         } else {
                                             echo "<tr><td colspan='5' class='text-center'>No hay equipos registrados</td></tr>";
                                         }
-                                        $sql = "SELECT COUNT(*) AS total FROM equipos WHERE placa LIKE ?";
+                                        $sql = "SELECT COUNT(*) AS total FROM equipos WHERE placa LIKE ? OR nombre_equipo LIKE ?";
                                         $stmt = $conn->prepare($sql);
-                                        $stmt->bind_param("s", $search_term);
+                                        $stmt->bind_param("ss", $search_term, $search_term);
                                         $stmt->execute();
                                         $result = $stmt->get_result();
                                         $row = $result->fetch_assoc();
@@ -246,6 +248,7 @@ if (!isset($_SESSION['usuario'])) {
                                                     <div><strong>Usuario Dominio:</strong> <span
                                                             id="usuario_dominio"></span></div>
                                                     <div><strong>Hoja De Vida:</strong> <span id="hv"></span></div>
+                                                    <div><strong>Correo:</strong> <span id="correo"></span></div>
                                                     <div><strong>Sistema Operativo:</strong> <span
                                                             id="sistema_operativo"></span></div>
                                                     <div><strong>Ram:</strong> <span id="ram"></span> GB</div>
@@ -272,7 +275,7 @@ if (!isset($_SESSION['usuario'])) {
                                                         aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form id="editEquipoForm" enctype="multipart/form-data">
+                                                    <form id="editEquipoForm" enctype="multipart/form-data" id="formEditar">
                                                         <input type="hidden" id="serial" name="serial">
 
                                                         <div class="mb-3">
@@ -403,8 +406,11 @@ if (!isset($_SESSION['usuario'])) {
                                                             <input type="text" class="form-control" id="paquete_ofx"
                                                                 name="paquete_ofx">
                                                         </div>
-
-
+                                                        <div class="mb-3">
+                                                            <label for="ip_lan" class="form-label">CORREO</label>
+                                                            <input type="text" class="form-control" id="correox"
+                                                                name="correox">
+                                                        </div>
                                                         <button type="submit" class="btn btn-success">Guardar</button>
                                                     </form>
                                                 </div>
@@ -467,16 +473,10 @@ if (!isset($_SESSION['usuario'])) {
                                         </li>
                                     </ul>
                                 </nav>
-
-
-
-
                             </div>
-
                         </div>
                     </div>
                 </div>
-
             </main>
 
         </div>
@@ -530,6 +530,7 @@ if (!isset($_SESSION['usuario'])) {
                             $('#licencia_wx').val(data.licencia_w);
                             $('#paquete_ofx').val(data.paquete_of);
                             $('#polizax').val(data.poliza);
+                            $('#correox').val(data.correo);
                         }
                     } catch (e) {
                         console.log("Error al procesar la respuesta:", e);
@@ -613,6 +614,7 @@ if (!isset($_SESSION['usuario'])) {
                             $('#host_name').text(data.host_name);
                             $('#mac_lan').text(data.mac_lan);
                             $('#mac_wlan').text(data.mac_wlan);
+                            $('#correo').text(data.correo);
                         }
                     } catch (e) {
                         console.log("Error al procesar la respuesta:", e);
@@ -636,7 +638,26 @@ if (!isset($_SESSION['usuario'])) {
             });
         });
     </script>
+    <script>
+    // Función para permitir solo letras, números y algunos caracteres válidos
+    function validarCaracteres(event) {
+        const input = event.target;
+        // Expresión regular que permite letras, números y los caracteres especiales permitidos: - . _
+        const regex = /^[a-zA-Z0-9-_\.@]*$/;
 
+        // Si el valor no coincide con la expresión regular, borramos el último carácter ingresado
+        if (!regex.test(input.value)) {
+            input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, ''); // Elimina cualquier caracter no permitido
+        }
+    }
+
+    // Aplicar la validación a todos los campos que necesiten restricción
+    document.addEventListener('DOMContentLoaded', function () {
+        let inputs = document.querySelectorAll('#formEditar input[type="text"]');  // Selecciona todos los campos de texto
+        inputs.forEach(input => {
+            input.addEventListener('input', validarCaracteres);  // Escucha el evento "input" para cada campo
+        });
+    });
+</script>
 </body>
-
 </html>

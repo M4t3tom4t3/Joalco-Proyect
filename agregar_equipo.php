@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $mac_wlan = $_POST['mac_wlan'];
     $licencia_w = $_POST['licencia_w'];
     $paquete_of = $_POST['paquete_of'];
+    $correo = $_POST['correo'];
 
     // Manejo del archivo de imagen
     if (isset($_FILES['ruta_img']) && $_FILES['ruta_img']['error'] == 0) {
@@ -72,13 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, 
             ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, 
             procesador, fecha_compra, costo, ruta_img, num_factura, num_pedido, 
-            host_name, mac_lan, mac_wlan, licencia_w, paquete_of
+            host_name, mac_lan, mac_wlan, licencia_w, paquete_of, correo
         ) VALUES (
             '$serial', '$marca', '$modelo', '$nombre_equipo', '$placa', '$activo_fijo', 
             '$estado', '$ip_lan', '$ip_wlan', '$usuario_dominio', '$hv', 
             '$sistema_operativo', '$ram', '$disco', '$procesador', '$fecha_compra', 
             '$costo', $ruta_img, '$num_factura', '$num_pedido', '$host_name', 
-            '$mac_lan', '$mac_wlan', '$licencia_w', '$paquete_of'
+            '$mac_lan', '$mac_wlan', '$licencia_w', '$paquete_of', '$correo'
         )";
 
     if ($conn->query($sql) === TRUE) {
@@ -111,7 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -183,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -195,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h3 class="fw-bold fs-4 mb-3">Agregar Equipo</h3>
                         <div class="row">
                             <div class="container mt-4">
-                                <form action="agregar_equipo.php" method="POST" enctype="multipart/form-data">
+                                <form action="agregar_equipo.php" method="POST" enctype="multipart/form-data" id="formEquipo">
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="serial" class="form-label">Serial</label>
@@ -215,15 +218,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <div class="col-md-4 mb-3">
                                             <label for="nombre_equipo" class="form-label">Nombre del Equipo</label>
                                             <input type="text" class="form-control" id="nombre_equipo"
-                                                name="nombre_equipo" required>
+                                                name="nombre_equipo" placeholder="PORTATIL-PC-MOUSE" required>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="placa" class="form-label">Placa</label>
-                                            <input type="text" class="form-control" id="placa" name="placa" required>
+                                            <input type="text" class="form-control" id="placa" name="placa" placeholder="XXX-0000" required>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="activo_fijo" class="form-label">Activo Fijo</label>
-                                            <input type="text" class="form-control" id="activo_fijo" name="activo_fijo">
+                                            <input type="number" class="form-control" id="activo_fijo" name="activo_fijo">
                                         </div>
                                     </div>
 
@@ -233,16 +236,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <select class="form-control" id="estado" name="estado" required>
                                                 <option value="" disabled selected>Seleccione un estado</option>
                                                 <option value="DE BAJA">DE BAJA</option>
-                                                <option value="EN USO">EN USO</option>
+                                                <option value="ACTIVO">ACTIVO</option>
+                                                <option value="BODEGA">BODEGA</option>
                                             </select>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="ip_lan" class="form-label">IP LAN</label>
-                                            <input type="text" class="form-control" id="ip_lan" name="ip_lan">
+                                            <input type="text" class="form-control" id="ip_lan" name="ip_lan" placeholder="XXX.XXX.XX.XXX">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="ip_wlan" class="form-label">IP WLAN</label>
-                                            <input type="text" class="form-control" id="ip_wlan" name="ip_wlan">
+                                            <input type="text" class="form-control" id="ip_wlan" name="ip_wlan" placeholder="XXX.XXX.XX.XXX">
                                         </div>
                                     </div>
 
@@ -254,23 +258,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="hv" class="form-label">Hoja de Vida</label>
-                                            <input type="text" class="form-control" id="hv" name="hv">
+                                            <input type="number" class="form-control" id="hv" name="hv">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="sistema_operativo" class="form-label">Sistema Operativo</label>
                                             <input type="text" class="form-control" id="sistema_operativo"
-                                                name="sistema_operativo">
+                                                name="sistema_operativo" placeholder="WINDOWS">
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="ram" class="form-label">RAM</label>
-                                            <input type="text" class="form-control" id="ram" name="ram">
+                                            <input type="number" class="form-control" id="ram" name="ram">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="disco" class="form-label">Disco Duro</label>
-                                            <input type="text" class="form-control" id="disco" name="disco">
+                                            <input type="text" class="form-control" id="disco" name="disco" placeholder="X TB *TIPO DISCO*">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="procesador" class="form-label">Procesador</label>
@@ -286,18 +290,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="costo" class="form-label">Costo</label>
-                                            <input type="text" class="form-control" id="costo" name="costo">
+                                            <input type="number" class="form-control" id="costo" name="costo">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for=" num_factura" class="form-label">Numero de Factura</label>
-                                            <input type="text" class="form-control" id="num_factura" name="num_factura">
+                                            <input type="number" class="form-control" id="num_factura" name="num_factura">
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="num_pedido" class="form-label">Numero de Pedido</label>
-                                            <input type="text" class="form-control" id="num_pedido" name="num_pedido">
+                                            <input type="number" class="form-control" id="num_pedido" name="num_pedido">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="host_name" class="form-label">Host Name</label>
@@ -305,14 +309,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for=" mac_lan" class="form-label">MAC LAN</label>
-                                            <input type="text" class="form-control" id="mac_lan" name="mac_lan">
+                                            <input type="text" class="form-control" id="mac_lan" name="mac_lan" placeholder="XX-XX-XX-XX-XX-XX">
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="mac_wlan" class="form-label">MAC WLAN</label>
-                                            <input type="text" class="form-control" id="mac_wlan" name="mac_wlan">
+                                            <input type="text" class="form-control" id="mac_wlan" name="mac_wlan" placeholder="XX-XX-XX-XX-XX-XX">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="licencia_w" class="form-label">Licencia Windows</label>
@@ -322,6 +326,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <label for=" paquete_of" class="form-label">Paquete Oficce</label>
                                             <input type="text" class="form-control" id="paquete_of" name="paquete_of">
                                         </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="correo" class="form-label">Correo: </label>
+                                            <input type="text" class="form-control" id="correo" name="correo" placeholder="xxxxxxx@transjoal.com.co">
+                                        </div>
+                                        
                                     </div>
 
                                     <div class="mb-3">
@@ -345,6 +356,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="script.js"></script>
+    <script>
+    // Función para permitir solo letras, números y algunos caracteres válidos
+    function validarCaracteres(event) {
+        const input = event.target;
+        // Expresión regular que permite letras, números y los caracteres especiales permitidos: - . _
+        const regex = /^[a-zA-Z0-9-_\.@]*$/;
+
+        // Si el valor no coincide con la expresión regular, borramos el último carácter ingresado
+        if (!regex.test(input.value)) {
+            input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, ''); // Elimina cualquier caracter no permitido
+        }
+    }
+
+    // Aplicar la validación a todos los campos que necesiten restricción
+    document.addEventListener('DOMContentLoaded', function () {
+        let inputs = document.querySelectorAll('#formEquipo input[type="text"]');  // Selecciona todos los campos de texto
+        inputs.forEach(input => {
+            input.addEventListener('input', validarCaracteres);  // Escucha el evento "input" para cada campo
+        });
+    });
+</script>
+
 </body>
 
 </html>

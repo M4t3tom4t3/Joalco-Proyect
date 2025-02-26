@@ -48,7 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -120,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -132,14 +134,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h3 class="fw-bold fs-4 mb-3">Agregar Usuarios</h3>
                         <div class="row">
                             <div class="container mt-4">
-                                <form action="agregar_usuario.php" method="POST">
+                                <form action="agregar_usuario.php" method="POST" id="formUsuario">
                                     <div class="mb-3">
                                         <label for="marca" class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="PRIMER NOMBRE" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="marca" class="form-label">Apellido</label>
-                                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                                        <input type="text" class="form-control" id="apellido" name="apellido" placeholder="PRIMER APELLIDO" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="modelo" class="form-label">Cargo</label>
@@ -170,6 +172,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="script.js"></script>
+    <script>
+    // Función para permitir solo letras, números y algunos caracteres válidos
+    function validarCaracteres(event) {
+        const input = event.target;
+        // Expresión regular que permite letras, números y los caracteres especiales permitidos: - . _
+        const regex = /^[a-zA-Z0-9-_\.@]*$/;
+
+        // Si el valor no coincide con la expresión regular, borramos el último carácter ingresado
+        if (!regex.test(input.value)) {
+            input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, ''); // Elimina cualquier caracter no permitido
+        }
+    }
+
+    // Aplicar la validación a todos los campos que necesiten restricción
+    document.addEventListener('DOMContentLoaded', function () {
+        let inputs = document.querySelectorAll('#formUsuario input[type="text"]');  // Selecciona todos los campos de texto
+        inputs.forEach(input => {
+            input.addEventListener('input', validarCaracteres);  // Escucha el evento "input" para cada campo
+        });
+    });
+</script>
 </body>
 
 </html>

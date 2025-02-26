@@ -36,6 +36,9 @@ if (!isset($_SESSION['usuario'])) {
         #data {
             background-color: rgb(198, 200, 202);
         }
+        #data3 {
+            background-color: rgb(198, 200, 202);
+        }
     </style>
 </head>
 
@@ -47,7 +50,9 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -118,7 +123,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-                            
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -138,7 +143,9 @@ if (!isset($_SESSION['usuario'])) {
                                                 placeholder="Buscar Usuario">
                                             <ul class="list-group mt-2" id="lista" style="display:none;"></ul>
                                             <br>
-                                            <input type="text" class="form-control" id="data" readonly>
+                                            <input type="text" class="form-control" id="data3" readonly>
+                                            <input type="hidden" class="form-control" id="data" readonly>
+                                            
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -182,6 +189,14 @@ if (!isset($_SESSION['usuario'])) {
                 let Data = fila.text().split(" - ");
 
                 $('#data').val(Data[2]);
+            });
+
+            $('#lista').on('click', 'li', function () {
+                let fila = $(this);
+
+                let Data = fila.text().split(" - ");
+
+                $('#data3').val(Data[0]);
             });
 
             $('input[name=filtro]').keyup(function () {

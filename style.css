@@ -29,7 +29,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
     width: 100%;
-    overflow: hidden;
+    overflow: inherit;
     transition: all 0.35s ease-in-out;
     background-color: #fff;
     min-width: 0;
@@ -173,3 +173,9 @@ a.sidebar-link:hover {
 
 
 @media (min-width: 768px) {}
+
+
+.redondeada {
+    border-radius: 10px;
+    overflow: hidden;  
+}

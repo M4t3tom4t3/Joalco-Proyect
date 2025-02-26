@@ -31,7 +31,9 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="index.php">Joalco</a>
+                <a href="index.php">
+                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -111,7 +113,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-
+                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -126,7 +128,7 @@ if (!isset($_SESSION['usuario'])) {
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <form class="d-flex" role="search" method="get" action="asig_usuarios.php">
                                     <input class="form-control me-2" type="search"
-                                        placeholder="Buscar por Nombre o Departamento" aria-label="Search" name="search"
+                                        placeholder="Buscar Nombre, Departamento O Consecutivo" aria-label="Search" name="search"
                                         value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                                     <button class="btn btn-outline-primary" type="submit">Buscar</button>
                                 </form>
@@ -147,12 +149,24 @@ if (!isset($_SESSION['usuario'])) {
                                             <th scope="col">Apellido</th>
                                             <th scope="col">Cargo</th>
                                             <th scope="col">Area</th>
+                                            <th scope="col">Equipo</th>
+                                            <th scope="col">N° Carta</th>
                                             <th scope="col">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        include('conexion.php');
+                                        $servername = "localhost";
+                                        $username = "root";
+                                        $password = "";
+                                        $dbname = "jp";
+                            
+                                        $conn = new mysqli($servername, $username, $password, $dbname);
+                            
+                                        // Verificar la conexión
+                                        if ($conn->connect_error) {
+                                            die("Conexión fallida: " . $conn->connect_error);
+                                        }
 
                                         $results_per_page = 7;
 
@@ -166,7 +180,16 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        $sql = "SELECT ID_usuario, nombre, apellido, cargo, departamento FROM usuarios WHERE nombre LIKE ? OR departamento LIKE ? LIMIT $start_from, $results_per_page";
+                                        $sql = "SELECT 
+                                            u.ID_usuario, u.nombre, u.apellido, u.cargo, u.departamento, 
+                                            e.serial, e.nombre_equipo, a.numero_consecutivo, e.estado AS estado_equipo
+                                            FROM usuarios u
+                                            LEFT JOIN asignacion a ON u.ID_usuario = a.FK_id
+                                            LEFT JOIN equipos e ON a.FK_serial = e.serial
+                                             WHERE (u.nombre LIKE ? OR u.departamento LIKE ?) 
+                                            AND (e.nombre_equipo = 'PC' OR e.nombre_equipo = 'PORTATIL')
+                                            AND a.estado_asig = 'ACTIVO' 
+                                            LIMIT $start_from, $results_per_page";
                                         $stmt = $conn->prepare($sql);
                                         $search_term = "%" . $search . "%";
                                         $stmt->bind_param("ss", $search_term, $search_term);
@@ -180,13 +203,20 @@ if (!isset($_SESSION['usuario'])) {
                                                 echo "<td>" . htmlspecialchars($row['apellido']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['cargo']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['departamento']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['nombre_equipo']) . "</td>";
+                                                echo "<td> A-" . htmlspecialchars($row['numero_consecutivo']) . "</td>";
                                                 echo "<td>
                                                  <a href='#' class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#exampleModal' data-id='" . $row['ID_usuario'] . "'>
-                                                 <i class='lni lni-eye'></i>
+                                                 <i class='lni lni-pencil'></i>
+                                                 </a>
                                                  
                                                  <a href='pdf.php?id=" . $row['ID_usuario'] . "' class='btn btn-warning btn-sm edit-btn'>
                                                  <i class='lni lni-download'></i>
                                                  </a>
+
+                                                 <a href='#' class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#detallesModal' data-serial='" . $row['serial'] . "'>
+                                                <i class='lni lni-eye'></i>
+                                                </a>
                                                  </td>";
                                             }
                                         } else {
@@ -203,6 +233,41 @@ if (!isset($_SESSION['usuario'])) {
                                         $total_pages = ceil($total_results / $results_per_page);
 
                                         ?>
+                                        <div class="modal fade" id="detallesModal" tabindex="-1"
+                                        aria-labelledby="detallesModal" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="detallesModal">Detalles</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" id="detallesModal" aria-hidden="true" inert>
+                                                    <div><strong>Activo Fijo:</strong> <span id="activo_fijo"></span>
+                                                    </div>
+                                                    <div><strong>Estado:</strong> <span id="estado"></span></div>
+                                                    <div><strong>IP LAN:</strong> <span id="ip_lan"></span></div>
+                                                    <div><strong>IP WLAN:</strong> <span id="ip_wlan"></span></div>
+                                                    <div><strong>Usuario Dominio:</strong> <span
+                                                            id="usuario_dominio"></span></div>
+                                                    <div><strong>Hoja De Vida:</strong> <span id="hv"></span></div>
+                                                    <div><strong>Correo:</strong> <span id="correo"></span></div>
+                                                    <div><strong>Sistema Operativo:</strong> <span
+                                                            id="sistema_operativo"></span></div>
+                                                    <div><strong>Ram:</strong> <span id="ram"></span> GB</div>
+                                                    <div><strong>Disco Duro:</strong> <span id="disco"></span></div>
+                                                    <div><strong>Procesador:</strong> <span id="procesador"></span>
+                                                    </div>
+                                                    <div><strong>Fecha De Compra:</strong> <span
+                                                            id="fecha_compra"></span></div>
+                                                    <div><strong>Costo:</strong> <span id="costo"></span></div>
+                                                    <div><strong>Host:</strong> <span id="host_name"></span></div>
+                                                    <div><strong>MAC LAN:</strong> <span id="mac_lan"></span></div>
+                                                    <div><strong>MAC WLAN:</strong> <span id="mac_wlan"></span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     </tbody>
                                 </table>
                                 <nav aria-label="Page navigation example">
@@ -253,9 +318,6 @@ if (!isset($_SESSION['usuario'])) {
     </ul>
 </nav>
 
-
-
-
                                 <div class="modal fade" id="exampleModal" tabindex="-1"
                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-xl">
@@ -273,6 +335,7 @@ if (!isset($_SESSION['usuario'])) {
                                         </div>
                                     </div>
                                 </div>
+
 
                             </div>
                         </div>
@@ -391,6 +454,57 @@ if (!isset($_SESSION['usuario'])) {
             }
         }
 
+
+    </script>
+    <script>
+        $(document).ready(function() {
+    // Mostrar detalles del equipo cuando se hace clic en el icono de ojo
+    $('#detallesModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Botón que activó el modal
+        var serial = button.data('serial'); // Obtener el serial del equipo
+        var modal = $(this);
+
+        // Verificar si el serial está presente
+        if (serial) {
+            // Llamar al servidor para obtener detalles del equipo por serial
+            $.ajax({
+                url: 'obtener_detalles.php',  // Archivo PHP que devolverá los detalles
+                method: 'POST',
+                data: { serial: serial },  // Enviar el serial en el POST
+                success: function(data) {
+                    var response = JSON.parse(data);  // Parsear la respuesta JSON
+
+                    if (response.error) {
+                        alert(response.error);  // Si hay un error, mostrarlo
+                    } else {
+                        // Rellenar los campos del modal con los datos del equipo
+                        modal.find('#activo_fijo').text(response.activo_fijo);
+                        modal.find('#estado').text(response.estado);
+                        modal.find('#ip_lan').text(response.ip_lan);
+                        modal.find('#ip_wlan').text(response.ip_wlan);
+                        modal.find('#usuario_dominio').text(response.usuario_dominio);
+                        modal.find('#hv').text(response.hv);
+                        modal.find('#correo').text(response.correo);
+                        modal.find('#sistema_operativo').text(response.sistema_operativo);
+                        modal.find('#ram').text(response.ram);
+                        modal.find('#disco').text(response.disco);
+                        modal.find('#procesador').text(response.procesador);
+                        modal.find('#fecha_compra').text(response.fecha_compra);
+                        modal.find('#costo').text(response.costo);
+                        modal.find('#host_name').text(response.host_name);
+                        modal.find('#mac_lan').text(response.mac_lan);
+                        modal.find('#mac_wlan').text(response.mac_wlan);
+                    }
+                },
+                error: function() {
+                    alert('Error al cargar los detalles del equipo.');
+                }
+            });
+        } else {
+            alert('No se pudo obtener el serial del equipo.');
+        }
+    });
+});
 
     </script>
 </body>
