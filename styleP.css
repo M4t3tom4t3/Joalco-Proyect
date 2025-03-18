@@ -1,0 +1,86 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    font-size: 8px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+th, td {
+    border: 1px solid black;
+    padding: 5px;
+    text-align: left;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+.header-cell {
+    border: 1px solid black;
+    padding: 1px;
+}
+.logo {
+    width: 150px;
+    height: auto;
+}
+.blue-header {
+    background-color: #4472C4;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+.gray-header {
+    background-color: #D9D9D9;
+    text-align: center;
+}
+.cell-custom {
+    width: 163px;
+}
+.cell-custom2 {
+    width: 60px;
+}
+.cell-custom3 {
+    width: 130px;
+}
+.cell-custom4 {
+    width: 65px;
+}
+.cell-custom5 {
+    width: 174px;
+}
+.cell-custom6 {
+    width: 87px;
+}
+.cell-custom7 {
+    width: 60px;
+}
+.cell-custom8 {
+    width: -10px;
+}
+.cell-custom9 {
+    width: 200px;
+}
+.cell-custom10 {
+    padding: 0px;
+    border: none;
+}
+.cell-custom11 {
+    width: 80px;
+}
+.white-header {
+    background-color: white;
+    text-align: center;
+    font-weight: bold;
+}
+.cell-custom12 {
+    width: 6px;
+}
+.cell-custom13 {
+    width: 50px;
+}
+.cell-custom14 {
+    width: 156px;
+}
