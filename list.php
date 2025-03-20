@@ -130,7 +130,6 @@ if (!isset($_SESSION['usuario'])) {
                                 ⟳
                             </a>
                             <a href="agregar_usuario.php" class="btn btn-success me-md-2">Agregar</a>
-                            <a href="agregar_firma.php" class="btn btn-warning me-md-2">Firma</a>
                         </div>
                         <div class="row">
                             <div class="col-12">

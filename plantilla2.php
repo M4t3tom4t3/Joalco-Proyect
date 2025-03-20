@@ -1,5 +1,5 @@
-<?php
-function getPlantilla($id){
+<?php 
+function getPlantilla($numero_consecutivo){
     $servername = "localhost";
     $username = "root";
     $password = "";
@@ -11,18 +11,27 @@ function getPlantilla($id){
         die("Conexión fallida: " . $conn->connect_error);
     }
 
-    $sql = "SELECT nombre, apellido, cargo, departamento, ciudad FROM usuarios WHERE ID_usuario = ?";
+    $numero_consecutivo = intval($numero_consecutivo);
+
+    $sql = "SELECT * FROM asignacion WHERE numero_consecutivo = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
+
+    if (!$stmt) {
+        die("Error en la preparación de la consulta: " . $conn->error);
+    }
+    
+    $stmt->bind_param("i", $numero_consecutivo);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $usuario = $result->fetch_assoc();
+        var_dump($usuario);
     } else {
         return "<p>No se encontró el usuario.</p>";
     }
 
+    $stmt->close();
     $conn->close();
 $contenido='
 <body>
@@ -66,16 +75,16 @@ $contenido='
             <th colspan="2" class="blue-header">N°.CONSECUTIVO</th>
         </tr>
         <tr>
-            <td colspan="8" class="cell-custom1" style="text-align: center;">' . htmlspecialchars($usuario['nombre']) . ' ' . htmlspecialchars($usuario['apellido']) . '</td>
-            <td colspan="2" ></td>
+            <td colspan="8" class="cell-custom1" style="text-align: center;"></td>
+            <td colspan="2" style="text-align: center;">A-</td>
         </tr>
         <tr class="blue-header">
             <th colspan="7" class="blue-header">CIUDAD</th>
             <th colspan="3" class="blue-header">AREA</th>
         </tr>
         <tr>
-            <td colspan="7" class="cell-custom1" style="text-align: center;">' . htmlspecialchars($usuario['ciudad']) . '</td>
-            <td colspan="3" style="text-align: center;">' . htmlspecialchars($usuario['departamento']) . '</td>
+            <td colspan="7" class="cell-custom1" style="text-align: center;"></td>
+            <td colspan="3" style="text-align: center;"></td>
         </tr>
         <tr class="white-header">
             <th colspan="10" class="white-header"></th>
@@ -86,14 +95,15 @@ $contenido='
             <th colspan="2" class="blue-header">FECHA DE ENTREGA</th>
         </tr>
         <tr>
-            <td colspan="5" class="cell-custom1" style="text-align: center;">' . htmlspecialchars($usuario['cargo']) . '</td>
-            <td colspan="3" ></td>
-            <td colspan="2" ></td>
+            <td colspan="5" class="cell-custom1" style="text-align: center;"></td>
+            <td colspan="3" style="text-align: center;" ></td>
+            <td colspan="2" style="text-align: center;"></td>
         </tr>
         <tr class="white-header">
             <th colspan="10" class="white-header"></th>
         </tr>
     </table>
+    
     <table>
         <tr class="blue-header">
             <th colspan="11" class="blue-header">DESCRIPCION DEL NUEVO ELEMENTO</th>
@@ -186,7 +196,7 @@ $contenido='
         </tr>
         <tr >
             <th colspan="1" style="font-weight: bold; text-align: center;" >MEMORIA:</th>
-            <th colspan="2" ></th>
+            <th colspan="2" > RAM</th>
             <th colspan="1" style="font-weight: bold; text-align: center;" >IP:</th>
             <th colspan="2" ></th>
         </tr>
@@ -223,7 +233,7 @@ $contenido='
             <th colspan="2" ></th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
+            <th colspan="2" </th>
             <th colspan="1" ></th>
             <th colspan="4" ></th>
             <th colspan="2" ></th>
@@ -276,12 +286,10 @@ $contenido='
             <th colspan="1" ></th>
             <th colspan="4" ></th>
             <th colspan="2" ></th>
-            <th colspan="2" ></th>
-        </tr>
+            <th colspan="2" ></tr>
     </table>
     <table>
-        <tr class="blue-header">
-            <th colspan="11" class="blue-header">USUARIO</th>
+        <tr class="blue-header">modelo<th colspan="11" class="blue-header">USUARIO</th>
         </tr>
         <tr>
             <th class="blue-header">SAP</th>

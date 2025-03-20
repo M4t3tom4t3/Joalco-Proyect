@@ -1,0 +1,13 @@
+Datos recibidos: {"id_usuario":"3","equipos":["PT-0010"],"estado_asig":"ACTIVO","fecha_asignacion":"2025-03-20"}
+Datos decodificados: Array
+(
+    [id_usuario] => 3
+    [equipos] => Array
+        (
+            [0] => PT-0010
+        )
+
+    [estado_asig] => ACTIVO
+    [fecha_asignacion] => 2025-03-20
+)
+

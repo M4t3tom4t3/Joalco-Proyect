@@ -31,9 +31,10 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                <a href="index.php">
-                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
-                </a>
+                    <a href="index.php">
+                        <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada"
+                            style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                    </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -114,7 +115,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -127,7 +128,6 @@ if (!isset($_SESSION['usuario'])) {
                         <div class="row">
                             <div class="container mt-4">
 
-                                <!-- Selector para elegir la tabla -->
                                 <div class="mb-3">
                                     <label for="tablaSelector" class="form-label">Selecciona una tabla:</label>
                                     <select class="form-select" id="tablaSelector">
@@ -136,18 +136,8 @@ if (!isset($_SESSION['usuario'])) {
                                     </select>
                                 </div>
 
-                                <!-- Tabla X -->
                                 <div id="tablaX" class="table-responsive" style="display: none;">
                                     <h4>Equipos de Baja</h4>
-                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <a href="generar_reporte.php?tabla=tablaX"
-                                            class="btn btn-outline-danger me-md-2"><i
-                                                class="bi bi-filetype-pdf"></i></a>
-                                        <a href="generar_reporteE.php?tabla=tablaX"
-                                            class="btn btn-outline-success me-md-2"><i
-                                                class="bi bi-file-earmark-spreadsheet"></i></a>
-                                    </div>
-
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
@@ -164,59 +154,59 @@ if (!isset($_SESSION['usuario'])) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "jp";
+                                            <?php
+                                            $servername = "localhost";
+                                            $username = "root";
+                                            $password = "";
+                                            $dbname = "jp";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+                                            $conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($conn->connect_error) {
-    die("Conexión fallida: " . $conn->connect_error);
-}
+                                            if ($conn->connect_error) {
+                                                die("Conexión fallida: " . $conn->connect_error);
+                                            }
 
-$sql = "
-    SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.fecha_compra, e.hv, e.costo,
-           u.nombre AS usuario_nombre, u.departamento, 
-           MAX(a.fecha_asignacion) AS fecha_ultima_asignacion
-    FROM equipos e
-    LEFT JOIN asignacion a ON e.serial = a.FK_serial
-    LEFT JOIN usuarios u ON a.FK_id = u.ID_usuario
-    WHERE e.estado = 'DE BAJA'
-    GROUP BY e.serial, e.nombre_equipo, e.marca, e.modelo, e.fecha_compra, e.hv, e.costo, u.nombre, u.departamento
-";
-$result = $conn->query($sql);
+                                            $sql = "
+                                                    SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.fecha_compra, e.hv, e.costo,
+                                                    u.nombre AS usuario_nombre, u.departamento, 
+                                                    MAX(a.fecha_asignacion) AS fecha_ultima_asignacion
+                                                    FROM equipos e
+                                                    LEFT JOIN asignacion a ON e.serial = a.FK_serial
+                                                    LEFT JOIN usuarios u ON a.FK_id = u.ID_usuario
+                                                    WHERE e.estado = 'DE BAJA'
+                                                    GROUP BY e.serial, e.nombre_equipo, e.marca, e.modelo, e.fecha_compra, e.hv, e.costo, u.nombre, u.departamento
+                                                    ";
+                                            $result = $conn->query($sql);
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $fechaCompra = new DateTime($row["fecha_compra"]);
-        $fechaActual = new DateTime(); 
-        $diferencia = $fechaActual->diff($fechaCompra); 
-        $años = $diferencia->y;
-        
-        echo "<tr>";
-        echo "<td>" . $row["serial"] . "</td>";
-        echo "<td>" . $row["nombre_equipo"] . "</td>";
-        echo "<td>" . $row["marca"] . "</td>";
-        echo "<td>" . $row["modelo"] . "</td>";
-        echo "<td>" . $row["fecha_compra"] . "</td>";
-        echo "<td>" . $row["hv"] . "</td>";
-        echo "<td>" . $row["costo"] . "</td>";
-        echo "<td>" . $row["usuario_nombre"] . "</td>"; 
-        echo "<td>" . $row["departamento"] . "</td>"; 
+                                            if ($result->num_rows > 0) {
+                                                while ($row = $result->fetch_assoc()) {
+                                                    $fechaCompra = new DateTime($row["fecha_compra"]);
+                                                    $fechaActual = new DateTime();
+                                                    $diferencia = $fechaActual->diff($fechaCompra);
+                                                    $años = $diferencia->y;
 
-        if ($años > 3) {
-            echo "<td><span class='badge text-bg-danger'>" . $años . " años</span></td>"; 
-        } else {
-            echo "<td><span class='badge text-bg-primary'>" . $años . " años</span></td>"; 
-        }
-        echo "</tr>";
-    }
-} else {
-    echo "<tr><td colspan='9'>No hay equipos en poliza.</td></tr>";
-}
-?>
+                                                    echo "<tr>";
+                                                    echo "<td>" . $row["serial"] . "</td>";
+                                                    echo "<td>" . $row["nombre_equipo"] . "</td>";
+                                                    echo "<td>" . $row["marca"] . "</td>";
+                                                    echo "<td>" . $row["modelo"] . "</td>";
+                                                    echo "<td>" . $row["fecha_compra"] . "</td>";
+                                                    echo "<td>" . $row["hv"] . "</td>";
+                                                    echo "<td>" . $row["costo"] . "</td>";
+                                                    echo "<td>" . $row["usuario_nombre"] . "</td>";
+                                                    echo "<td>" . $row["departamento"] . "</td>";
+
+                                                    if ($años > 3) {
+                                                        echo "<td><span class='badge text-bg-danger'>" . $años . " años</span></td>";
+                                                    } else {
+                                                        echo "<td><span class='badge text-bg-primary'>" . $años . " años</span></td>";
+                                                    }
+                                                    echo "</tr>";
+                                                }
+                                            } else {
+                                                echo "<tr><td colspan='9'>No hay equipos en poliza.</td></tr>";
+                                            }
+                                            ?>
 
                                         </tbody>
                                     </table>
@@ -224,16 +214,6 @@ if ($result->num_rows > 0) {
 
                                 <div id="tablaY" class="table-responsive" style="display: none;">
                                     <h4>Equipos en Poliza</h4>
-
-                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <a href="generar_reporte.php?tabla=tablaY"
-                                            class="btn btn-outline-danger me-md-2"><i
-                                                class="bi bi-filetype-pdf"></i></a>
-                                        <a href="generar_reporteE.php?tabla=tablaY"
-                                            class="btn btn-outline-success me-md-2"><i
-                                                class="bi bi-file-earmark-spreadsheet"></i></a>
-                                    </div>
-
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
@@ -265,7 +245,7 @@ if ($result->num_rows > 0) {
                                                 while ($row = $result->fetch_assoc()) {
                                                     echo "<tr>";
                                                     $fechaCompra = new DateTime($row["fecha_compra"]);
-                                                    $fechaActual = new DateTime(); 
+                                                    $fechaActual = new DateTime();
                                                     $diferencia = $fechaActual->diff($fechaCompra); // Calcula la diferencia
                                                     $años = $diferencia->y;
                                                     echo "<td>" . $row["serial"] . "</td>";
@@ -286,7 +266,7 @@ if ($result->num_rows > 0) {
                                             ?>
                                         </tbody>
                                     </table>
-                                    
+
                                 </div>
 
                             </div>
@@ -315,8 +295,8 @@ if ($result->num_rows > 0) {
                 }
             });
 
-            $('#tablaX').show(); 
-            $('#tablaY').hide(); 
+            $('#tablaX').show();
+            $('#tablaY').hide();
         });
     </script>
 </body>

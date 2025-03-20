@@ -1,33 +1,53 @@
 <?php
 require 'conexion.php';
 
-if (isset($_POST['id_usuario']) && isset($_POST['placa_equipo'])) {
-    $id_usuario = $_POST['id_usuario'];
-    $placa_equipo = $_POST['placa_equipo'];
-    $estado_asig = $_POST['estado_asig'];  
-    $fecha_asignacion = $_POST['fecha_asignacion'];  
+header('Content-Type: application/json');
 
-    $conexion = new Conexion;
+try {
+    if (isset($_POST['id_usuario']) && isset($_POST['equipos'])) {
+        $id_usuario = $_POST['id_usuario'];
+        $equipos = json_decode($_POST['equipos'], true);
+        $estado_asig = $_POST['estado_asig'];
+        $fecha_asignacion = $_POST['fecha_asignacion'];
 
-    $conexion->Query = "INSERT INTO asignacion (FK_id, FK_serial, estado_asig, fecha_asignacion) 
-                        VALUES (:id_usuario, :placa_equipo, :estado_asig, :fecha_asignacion)";
+        $conexion = new Conexion;
 
-    try {
+        // Obtener último número consecutivo y sumarle 1
+        $conexion->Query = "SELECT MAX(numero_consecutivo) as max_consec FROM asignacion";
         $conexion->Pps = $conexion->getBaseDeDatosConection()->prepare($conexion->Query);
-        $conexion->Pps->execute([
-            ":id_usuario" => $id_usuario,
-            ":placa_equipo" => $placa_equipo,
-            ":estado_asig" => $estado_asig,
-            ":fecha_asignacion" => $fecha_asignacion
-        ]);
+        $conexion->Pps->execute();
+        $resultado = $conexion->Pps->fetch(PDO::FETCH_ASSOC);
+        $nuevo_consecutivo = ($resultado['max_consec'] ?? 0) + 1;
 
-        echo json_encode(['status' => 'success', 'message' => 'Asignación guardada']);
-    } catch (\Throwable $th) {
-        echo json_encode(['status' => 'error', 'message' => $th->getMessage()]);
-    } finally {
-        $conexion->closeDataBase();
+        $pdo = $conexion->getBaseDeDatosConection(); // Obtener la instancia PDO
+
+        $pdo->beginTransaction(); // Iniciar la transacción
+
+        // Insertar todos los equipos con el mismo número_consecutivo
+        foreach ($equipos as $placa_equipo) {
+            $conexion->Query = "INSERT INTO asignacion (numero_consecutivo, FK_id, FK_serial, estado_asig, fecha_asignacion) 
+                                 VALUES (:consec, :id_usuario, :placa_equipo, :estado_asig, :fecha_asignacion)";
+
+            $conexion->Pps = $pdo->prepare($conexion->Query);
+            $conexion->Pps->execute([
+                ":consec" => $nuevo_consecutivo,
+                ":id_usuario" => $id_usuario,
+                ":placa_equipo" => $placa_equipo,
+                ":estado_asig" => $estado_asig,
+                ":fecha_asignacion" => $fecha_asignacion
+            ]);
+        }
+
+        $pdo->commit(); 
+        echo json_encode(['status' => 'success', 'message' => 'Equipo agregado exitosamente.']);
+    } else {
+        throw new Exception('Datos incompletos.');
     }
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Datos faltantes']);
+} catch (\Throwable $th) {
+    if (isset($pdo) && $pdo->inTransaction()) { 
+        $pdo->rollBack(); 
+    }
+    echo json_encode(['status' => 'error', 'message' => 'Hubo un error al guardar la asignación: ' . $th->getMessage()]);
 }
+exit;
 ?>

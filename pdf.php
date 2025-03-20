@@ -15,7 +15,6 @@ $password = '';
 $pdo = new PDO($dsn, $username, $password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Consulta de datos del usuario
 $query_usuario = "SELECT nombre, apellido, cargo, departamento, ciudad FROM usuarios WHERE ID_usuario = :id_usuario";
 $stmt_usuario = $pdo->prepare($query_usuario);
 $stmt_usuario->execute(['id_usuario' => $id_usuario]);
@@ -31,18 +30,14 @@ $stmt_firma->execute(['id_usuario' => $id_usuario]);
 
 $firma = $stmt_firma->fetch(PDO::FETCH_ASSOC);
 
-// Verificar si la imagen existe antes de intentar cargarla
-$image_path = !empty($firma['ruta_f']) ? 'Firmas/' . $firma['ruta_f'] : '';  // Concatenamos la carpeta "Firmas" a la ruta guardada en la DB
+$image_path = !empty($firma['ruta_f']) ? 'Firmas/' . $firma['ruta_f'] : '';  
 
 if ($image_path && file_exists($image_path)) {
-    // Imagen de la firma existe y es accesible
     $image_exists = true;
 } else {
-    // Si no existe, establecemos la variable como false
     $image_exists = false;
 }
 
-// Consultar firma específica para el usuario 4
 $query_firma_usuario_4 = "SELECT ruta_f FROM firmas WHERE fk_id = 4";
 $stmt_firma_usuario_4 = $pdo->prepare($query_firma_usuario_4);
 $stmt_firma_usuario_4->execute();
@@ -71,7 +66,6 @@ $query_inactivos = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.PLACA
 $stmt_inactivos = $pdo->prepare($query_inactivos);
 $stmt_inactivos->execute(['id_usuario' => $id_usuario]);
 
-// Crear el PDF
 $pdf = new FPDI();
 $pdf->setSourceFile('base.pdf');
 $template = $pdf->importPage(1);
@@ -79,26 +73,22 @@ $template = $pdf->importPage(1);
 $pdf->addPage();
 $pdf->useTemplate($template);
 
-// Fuente
 $pdf->setFont('Arial', '', 9);
 
 if ($image_exists) {
-    $pdf->Image($image_path, 86, 234, 57, 11); // Ajusta las coordenadas y el tamaño según sea necesario
+    $pdf->Image($image_path, 86, 234, 57, 11); 
 } else {
     
 }
 
 if (!empty($image_path_usuario_4) && file_exists($image_path_usuario_4)) {
-    // Imagen de la firma de usuario 4
-    $pdf->Image($image_path_usuario_4, 30, 235, 57,11); // Ajustar la posición y el tamaño según sea necesario
+    $pdf->Image($image_path_usuario_4, 30, 235, 57,11); 
 } else {
-    // Si no existe la firma, mostrar un mensaje
     $pdf->setXY(40, 235);
     $pdf->Cell(0, 10, "");
 }
 
 
-// Información del usuario
 $pdf->setXY(67, 35);
 $pdf->Cell(0, 10, htmlspecialchars($user['nombre']) . ' ' . htmlspecialchars($user['apellido']));
 
@@ -114,9 +104,8 @@ $pdf->Cell(0, 10, htmlspecialchars($user['departamento']));
 $pdf->setXY(73, 45);
 $pdf->Cell(0, 10, htmlspecialchars($user['ciudad']));
 
-$y_position = 73.8; // Se empieza a imprimir después de la información del usuario
+$y_position = 73.8; 
 
-// Variables de control para los datos del equipo
 $sistema_operativo_impreso = false;
 $procesador_impreso = false;
 $ram_impreso = false;
@@ -124,18 +113,15 @@ $disco_impreso = false;
 $ip_lan_impreso = false;
 $usuario_dominio_impreso = false;
 $fecha_impresa = false;
-$consecutivo_impreso = false; // Control para el número consecutivo
+$consecutivo_impreso = false; 
 
-// Primero, imprimimos los equipos activos
 while ($asignacion = $stmt_activos->fetch(PDO::FETCH_ASSOC)) {
-    // Si la posición Y es mayor a 250, agrega una nueva página
     if ($y_position > 250) {
         $pdf->addPage();
         $pdf->useTemplate($template);
-        $y_position = 35;  // Reinicia la posición Y para la nueva página
+        $y_position = 35;  
     }
 
-    // Información del equipo
     $pdf->setXY(17, $y_position);
     $pdf->Cell(0, 10, htmlspecialchars($asignacion['nombre_equipo']));
 
@@ -145,9 +131,8 @@ while ($asignacion = $stmt_activos->fetch(PDO::FETCH_ASSOC)) {
     $pdf->setXY(75, $y_position);
     $pdf->Cell(0, 10, htmlspecialchars($asignacion['modelo']));
 
-    // Serial: Si es demasiado largo, se corta
     $serial = htmlspecialchars($asignacion['serial']);
-    $max_serial_length = 13; // Ajustar cantidad de caracteres
+    $max_serial_length = 13; 
     if (strlen($serial) > $max_serial_length) {
         $serial = substr($serial, 0, $max_serial_length) . '...';
     }
@@ -159,12 +144,12 @@ while ($asignacion = $stmt_activos->fetch(PDO::FETCH_ASSOC)) {
     $pdf->Cell(0, 10, htmlspecialchars($asignacion['PLACA']));
 
     if (($asignacion['nombre_equipo'] == 'PC' || $asignacion['nombre_equipo'] == 'PORTATIL') && !$consecutivo_impreso) {
-        $pdf->setXY(177, 35);  // Ajusta la posición según sea necesario
+        $pdf->setXY(177, 35);  
         $pdf->Cell(0, 10, 'A-' . htmlspecialchars($asignacion['numero_consecutivo']));
-        $consecutivo_impreso = true;  // Evita que se imprima más de una vez
+        $consecutivo_impreso = true; 
     }
 
-    // Imprimir detalles de los componentes si están disponibles
+    
     if (!empty($asignacion['sistema_operativo']) && !$sistema_operativo_impreso) {
         $pdf->setXY(141, 113);
         $pdf->Cell(0, 10, htmlspecialchars($asignacion['sistema_operativo']));
@@ -201,7 +186,6 @@ while ($asignacion = $stmt_activos->fetch(PDO::FETCH_ASSOC)) {
         $usuario_dominio_impreso = true;
     }
 
-    // Fecha de asignación (solo para ciertos equipos)
     if (in_array(strtoupper($asignacion['nombre_equipo']), ['PORTATIL', 'PC']) && !$fecha_impresa) {
         $pdf->setXY(100, 57.5);
         $pdf->Cell(0, 10, htmlspecialchars($asignacion['fecha_asignacion']));
@@ -210,19 +194,16 @@ while ($asignacion = $stmt_activos->fetch(PDO::FETCH_ASSOC)) {
         $fecha_impresa = true;
     }
 
-    $y_position += 4.4;  // Ajuste la distancia entre las filas
+    $y_position += 4.4;  
 }
 
-// Ahora, imprimimos los equipos inactivos
 while ($asignacion = $stmt_inactivos->fetch(PDO::FETCH_ASSOC)) {
-    // Si la posición Y es mayor a 250, agrega una nueva página
     if ($y_position > 250) {
         $pdf->addPage();
         $pdf->useTemplate($template);
-        $y_position = 35;  // Reinicia la posición Y para la nueva página
+        $y_position = 35;  
     }
 
-    // Información del equipo
     $pdf->setXY(17, 137.7);
     $pdf->Cell(0, 10, htmlspecialchars($asignacion['nombre_equipo']));
 
@@ -232,9 +213,8 @@ while ($asignacion = $stmt_inactivos->fetch(PDO::FETCH_ASSOC)) {
     $pdf->setXY(75, 137.7);
     $pdf->Cell(0, 10, htmlspecialchars($asignacion['modelo']));
 
-    // Serial: Si es demasiado largo, se corta
     $serial = htmlspecialchars($asignacion['serial']);
-    $max_serial_length = 13; // Ajustar cantidad de caracteres
+    $max_serial_length = 13; 
     if (strlen($serial) > $max_serial_length) {
         $serial = substr($serial, 0, $max_serial_length) . '...';
     }
@@ -245,11 +225,10 @@ while ($asignacion = $stmt_inactivos->fetch(PDO::FETCH_ASSOC)) {
     $pdf->setXY(172, 137.7);
     $pdf->Cell(0, 10, htmlspecialchars($asignacion['PLACA']));
 
-    // Imprimir detalles del número consecutivo solo para PC o PORTATIL y solo una vez
     if (($asignacion['nombre_equipo'] == 'PC' || $asignacion['nombre_equipo'] == 'PORTATIL') && !$consecutivo_impreso) {
-        $pdf->setXY(100, $y_position);  // Ajusta la posición según sea necesario
+        $pdf->setXY(100, $y_position);  
         $pdf->Cell(0, 10, 'Nº Consecutivo: ' . htmlspecialchars($asignacion['numero_consecutivo']));
-        $consecutivo_impreso = true;  // Evita que se imprima más de una vez
+        $consecutivo_impreso = true;  
     }
 
     $y_position += 4.4;  

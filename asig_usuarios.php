@@ -31,9 +31,10 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                <a href="index.php">
-                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
-                </a>
+                    <a href="index.php">
+                        <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada"
+                            style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                    </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -56,7 +57,7 @@ if (!isset($_SESSION['usuario'])) {
                         <span>Asignaciones</span>
                     </a>
                     <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
+                        <li class="sidebar-item">
                             <a href="asig_usuarios.php" class="sidebar-link"><i class="lni lni-user"></i>Personas</a>
                         </li>
                         <li class="sidebar-item">
@@ -79,7 +80,7 @@ if (!isset($_SESSION['usuario'])) {
                 </li>
                 <li class="sidebar-item">
                     <a href="bajas_poliza.php" class="sidebar-link">
-                    <i class="bi bi-bank2"></i>
+                        <i class="bi bi-bank2"></i>
                         <span>Bajas y Polizas</span>
                     </a>
                 </li>
@@ -113,7 +114,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -160,10 +161,9 @@ if (!isset($_SESSION['usuario'])) {
                                         $username = "root";
                                         $password = "";
                                         $dbname = "jp";
-                            
+
                                         $conn = new mysqli($servername, $username, $password, $dbname);
-                            
-                                        // Verificar la conexión
+
                                         if ($conn->connect_error) {
                                             die("Conexión fallida: " . $conn->connect_error);
                                         }
@@ -187,8 +187,8 @@ if (!isset($_SESSION['usuario'])) {
                                             LEFT JOIN asignacion a ON u.ID_usuario = a.FK_id
                                             LEFT JOIN equipos e ON a.FK_serial = e.serial
                                              WHERE (u.nombre LIKE ? OR a.numero_consecutivo LIKE ?) 
-                                            AND (e.nombre_equipo = 'PC' OR e.nombre_equipo = 'PORTATIL')
-                                            AND a.estado_asig = 'ACTIVO' 
+                                            AND a.estado_asig = 'ACTIVO'
+                                            ORDER BY a.fecha_asignacion DESC 
                                             LIMIT $start_from, $results_per_page";
                                         $stmt = $conn->prepare($sql);
                                         $search_term = "%" . $search . "%";
@@ -206,11 +206,8 @@ if (!isset($_SESSION['usuario'])) {
                                                 echo "<td>" . htmlspecialchars($row['nombre_equipo']) . "</td>";
                                                 echo "<td> A-" . htmlspecialchars($row['numero_consecutivo']) . "</td>";
                                                 echo "<td>
-                                                 <a href='#' class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#exampleModal' data-id='" . $row['ID_usuario'] . "'>
-                                                 <i class='lni lni-pencil'></i>
-                                                 </a>
                                                  
-                                                 <a href='HTMLPDF2.php?id=" . $row['ID_usuario'] . "' class='btn btn-warning btn-sm edit-btn'>
+                                                 <a href='HTMLPDF2.php?id=" . $row['numero_consecutivo'] . "' class='btn btn-warning btn-sm edit-btn'>
                                                  <i class='lni lni-download'></i>
                                                  </a>
 
@@ -236,84 +233,94 @@ if (!isset($_SESSION['usuario'])) {
 
                                         ?>
                                         <div class="modal fade" id="detallesModal" tabindex="-1"
-                                        aria-labelledby="detallesModal" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="detallesModal">Detalles</h1>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body" id="detallesModal" aria-hidden="true" inert>
-                                                    <div><strong>Activo Fijo:</strong> <span id="activo_fijo"></span>
+                                            aria-labelledby="detallesModal" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="detallesModal">Detalles</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
                                                     </div>
-                                                    <div><strong>Estado:</strong> <span id="estado"></span></div>
-                                                    <div><strong>IP LAN:</strong> <span id="ip_lan"></span></div>
-                                                    <div><strong>IP WLAN:</strong> <span id="ip_wlan"></span></div>
-                                                    <div><strong>Usuario Dominio:</strong> <span
-                                                            id="usuario_dominio"></span></div>
-                                                    <div><strong>Hoja De Vida:</strong> <span id="hv"></span></div>
-                                                    <div><strong>Correo:</strong> <span id="correo"></span></div>
-                                                    <div><strong>Sistema Operativo:</strong> <span
-                                                            id="sistema_operativo"></span></div>
-                                                    <div><strong>Ram:</strong> <span id="ram"></span> GB</div>
-                                                    <div><strong>Disco Duro:</strong> <span id="disco"></span></div>
-                                                    <div><strong>Procesador:</strong> <span id="procesador"></span>
+                                                    <div class="modal-body" id="detallesModal" aria-hidden="true" inert>
+                                                        <div><strong>Activo Fijo:</strong> <span
+                                                                id="activo_fijo"></span>
+                                                        </div>
+                                                        <div><strong>Estado:</strong> <span id="estado"></span></div>
+                                                        <div><strong>IP LAN:</strong> <span id="ip_lan"></span></div>
+                                                        <div><strong>IP WLAN:</strong> <span id="ip_wlan"></span></div>
+                                                        <div><strong>Usuario Dominio:</strong> <span
+                                                                id="usuario_dominio"></span></div>
+                                                        <div><strong>Hoja De Vida:</strong> <span id="hv"></span></div>
+                                                        <div><strong>Correo:</strong> <span id="correo"></span></div>
+                                                        <div><strong>Sistema Operativo:</strong> <span
+                                                                id="sistema_operativo"></span></div>
+                                                        <div><strong>Ram:</strong> <span id="ram"></span> GB</div>
+                                                        <div><strong>Disco Duro:</strong> <span id="disco"></span></div>
+                                                        <div><strong>Procesador:</strong> <span id="procesador"></span>
+                                                        </div>
+                                                        <div><strong>Fecha De Compra:</strong> <span
+                                                                id="fecha_compra"></span></div>
+                                                        <div><strong>Costo:</strong> <span id="costo"></span></div>
+                                                        <div><strong>Host:</strong> <span id="host_name"></span></div>
+                                                        <div><strong>MAC LAN:</strong> <span id="mac_lan"></span></div>
+                                                        <div><strong>MAC WLAN:</strong> <span id="mac_wlan"></span>
+                                                        </div>
                                                     </div>
-                                                    <div><strong>Fecha De Compra:</strong> <span
-                                                            id="fecha_compra"></span></div>
-                                                    <div><strong>Costo:</strong> <span id="costo"></span></div>
-                                                    <div><strong>Host:</strong> <span id="host_name"></span></div>
-                                                    <div><strong>MAC LAN:</strong> <span id="mac_lan"></span></div>
-                                                    <div><strong>MAC WLAN:</strong> <span id="mac_wlan"></span></div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                     </tbody>
                                 </table>
                                 <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        <li class="page-item <?php if ($page <= 1) echo 'disabled'; ?>">
-            <a class="page-link" href="?page=1&search=<?php echo urlencode($search); ?>" aria-label="First">
-                <span aria-hidden="true">&laquo;&laquo;</span>
-            </a>
-        </li>
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item <?php if ($page <= 1)
+                                            echo 'disabled'; ?>">
+                                            <a class="page-link" href="?page=1&search=<?php echo urlencode($search); ?>"
+                                                aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
 
-        <li class="page-item <?php if ($page <= 1) echo 'disabled'; ?>">
-            <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>"
-                aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
+                                        <li class="page-item <?php if ($page <= 1)
+                                            echo 'disabled'; ?>">
+                                            <a class="page-link"
+                                                href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>"
+                                                aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
 
-        <?php
-        $range = 2; 
-        $start = max(1, $page - $range); 
-        $end = min($total_pages, $page + $range); 
-        
-        for ($i = $start; $i <= $end; $i++) {
-            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'>
+                                        <?php
+                                        $range = 2;
+                                        $start = max(1, $page - $range);
+                                        $end = min($total_pages, $page + $range);
+
+                                        for ($i = $start; $i <= $end; $i++) {
+                                            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'>
                 <a class='page-link' href='?page=$i&search=" . urlencode($search) . "'>$i</a>
             </li>";
-        }
-        ?>
+                                        }
+                                        ?>
 
-        <li class="page-item <?php if ($page >= $total_pages) echo 'disabled'; ?>">
-            <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>"
-                aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
+                                        <li class="page-item <?php if ($page >= $total_pages)
+                                            echo 'disabled'; ?>">
+                                            <a class="page-link"
+                                                href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>"
+                                                aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
 
-        <li class="page-item <?php if ($page >= $total_pages) echo 'disabled'; ?>">
-            <a class="page-link" href="?page=<?php echo $total_pages; ?>&search=<?php echo urlencode($search); ?>"
-                aria-label="Last">
-                <span aria-hidden="true">&raquo;&raquo;</span>
-            </a>
-        </li>
-    </ul>
-</nav>
+                                        <li class="page-item <?php if ($page >= $total_pages)
+                                            echo 'disabled'; ?>">
+                                            <a class="page-link"
+                                                href="?page=<?php echo $total_pages; ?>&search=<?php echo urlencode($search); ?>"
+                                                aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
 
                                 <div class="modal fade" id="exampleModal" tabindex="-1"
                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -363,65 +370,7 @@ if (!isset($_SESSION['usuario'])) {
                 }
             });
         });
-        function cambiarEstado(serial_equipo, id_usuario) {
-            $.ajax({
-                url: 'obtener_asignacion.php', 
-                method: 'POST',
-                data: {
-                    serial_equipo: serial_equipo,
-                    id_usuario: id_usuario,
-                    estado: 'INACTIVO' 
-                },
-                success: function (response) {
-                    try {
-                        var data = JSON.parse(response);
-                        if (data.success) {
-                            $("#estado_" + serial_equipo).text("INACTIVO");
-                            alert(data.message);
-                        } else {
-                            alert(data.message);
-                        }
-                    } catch (e) {
-                        console.error("Error al parsear la respuesta JSON:", e);
-                        alert("Hubo un problema con la respuesta del servidor.");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error en la solicitud AJAX:", error);
-                    alert("Hubo un problema al cambiar el estado.");
-                }
-            });
-        }
 
-        function cambiarEstadoActivo(serial_equipo, id_usuario) {
-            $.ajax({
-                url: 'obtener_asignacion.php', 
-                method: 'POST',
-                data: {
-                    serial_equipo: serial_equipo,
-                    id_usuario: id_usuario,
-                    estado: 'ACTIVO' 
-                },
-                success: function (response) {
-                    try {
-                        var data = JSON.parse(response);
-                        if (data.success) {
-                            $("#estado_" + serial_equipo).text("ACTIVO");
-                            alert(data.message);
-                        } else {
-                            alert(data.message);
-                        }
-                    } catch (e) {
-                        console.error("Error al parsear la respuesta JSON:", e);
-                        alert("Hubo un problema con la respuesta del servidor.");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error en la solicitud AJAX:", error);
-                    alert("Hubo un problema al cambiar el estado.");
-                }
-            });
-        }
         function eliminarAsignacion(serial_equipo, id_usuario) {
             if (confirm("¿Estás seguro de que deseas eliminar esta asignación?")) {
                 var data = new FormData();
@@ -437,7 +386,7 @@ if (!isset($_SESSION['usuario'])) {
                     .then(data => {
                         if (data.success) {
                             alert(data.message);
-                            location.reload(); 
+                            location.reload();
                         } else {
                             alert("Error: " + data.message);
                         }
@@ -452,50 +401,50 @@ if (!isset($_SESSION['usuario'])) {
 
     </script>
     <script>
-        $(document).ready(function() {
-    $('#detallesModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); 
-        var serial = button.data('serial'); 
-        var modal = $(this);
+        $(document).ready(function () {
+            $('#detallesModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var serial = button.data('serial');
+                var modal = $(this);
 
-        if (serial) {
-            $.ajax({
-                url: 'obtener_detalles.php',  
-                method: 'POST',
-                data: { serial: serial },  
-                success: function(data) {
-                    var response = JSON.parse(data); 
+                if (serial) {
+                    $.ajax({
+                        url: 'obtener_detalles.php',
+                        method: 'POST',
+                        data: { serial: serial },
+                        success: function (data) {
+                            var response = JSON.parse(data);
 
-                    if (response.error) {
-                        alert(response.error);  
-                    } else {
-                        modal.find('#activo_fijo').text(response.activo_fijo);
-                        modal.find('#estado').text(response.estado);
-                        modal.find('#ip_lan').text(response.ip_lan);
-                        modal.find('#ip_wlan').text(response.ip_wlan);
-                        modal.find('#usuario_dominio').text(response.usuario_dominio);
-                        modal.find('#hv').text(response.hv);
-                        modal.find('#correo').text(response.correo);
-                        modal.find('#sistema_operativo').text(response.sistema_operativo);
-                        modal.find('#ram').text(response.ram);
-                        modal.find('#disco').text(response.disco);
-                        modal.find('#procesador').text(response.procesador);
-                        modal.find('#fecha_compra').text(response.fecha_compra);
-                        modal.find('#costo').text(response.costo);
-                        modal.find('#host_name').text(response.host_name);
-                        modal.find('#mac_lan').text(response.mac_lan);
-                        modal.find('#mac_wlan').text(response.mac_wlan);
-                    }
-                },
-                error: function() {
-                    alert('Error al cargar los detalles del equipo.');
+                            if (response.error) {
+                                alert(response.error);
+                            } else {
+                                modal.find('#activo_fijo').text(response.activo_fijo);
+                                modal.find('#estado').text(response.estado);
+                                modal.find('#ip_lan').text(response.ip_lan);
+                                modal.find('#ip_wlan').text(response.ip_wlan);
+                                modal.find('#usuario_dominio').text(response.usuario_dominio);
+                                modal.find('#hv').text(response.hv);
+                                modal.find('#correo').text(response.correo);
+                                modal.find('#sistema_operativo').text(response.sistema_operativo);
+                                modal.find('#ram').text(response.ram);
+                                modal.find('#disco').text(response.disco);
+                                modal.find('#procesador').text(response.procesador);
+                                modal.find('#fecha_compra').text(response.fecha_compra);
+                                modal.find('#costo').text(response.costo);
+                                modal.find('#host_name').text(response.host_name);
+                                modal.find('#mac_lan').text(response.mac_lan);
+                                modal.find('#mac_wlan').text(response.mac_wlan);
+                            }
+                        },
+                        error: function () {
+                            alert('Error al cargar los detalles del equipo.');
+                        }
+                    });
+                } else {
+                    alert('No se pudo obtener el serial del equipo.');
                 }
             });
-        } else {
-            alert('No se pudo obtener el serial del equipo.');
-        }
-    });
-});
+        });
 
     </script>
 </body>

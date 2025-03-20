@@ -23,7 +23,7 @@ function getPlantilla($id){
         return "<p>No se encontró el usuario.</p>";
     }
 
-    $sql_equipo = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo
+    $sql_equipo = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.hv 
     FROM equipos e
     JOIN asignacion a ON e.serial = a.FK_serial
     WHERE a.FK_id = ? AND a.estado_asig = 'ACTIVO'";
@@ -43,9 +43,7 @@ function getPlantilla($id){
     "marca"  => htmlspecialchars($equipo["marca"]),
     "modelo" => htmlspecialchars($equipo["modelo"]),
     "serial" => htmlspecialchars($equipo["serial"]),
-    "hv"     => ($equipo["nombre_equipo"] == "PC" || $equipo["nombre_equipo"] == "PORTATIL") 
-                    ? htmlspecialchars($equipo["hv"]) 
-                    : "N/A"
+    "hv"     => htmlspecialchars($equipo["hv"])
     ];
 
     switch ($equipo["nombre_equipo"]) {
@@ -162,7 +160,7 @@ $contenido='
         </tr>
         <tr>
             <th style="border-top: none; border-bottom: none;">HV Equipo</th>
-            <td colspan="2" class="cell-custom9" style="background-color:rgb(255, 240, 24);"></td>
+            <td colspan="2" class="cell-custom9" style="background-color:rgb(255, 240, 24); text-align: center;">' . (isset($PC["hv"]) ? htmlspecialchars($PC["hv"]) : (isset($Portatil["hv"]) ? htmlspecialchars($Portatil["hv"]) : "N/A")) . '</td>
             <td style="border-right: none; border-top: none; border-bottom: none;"></td>
             <td style="border-left: none; border-top: none; border-bottom: none; border-right: none;"></td>
             <td style="border-right: none; border-left: none; border-bottom: none; border-top: none; text-align: center; font-weight: bold;">aaaa-mm-dd</td>

@@ -36,6 +36,7 @@ if (!isset($_SESSION['usuario'])) {
         #data {
             background-color: rgb(198, 200, 202);
         }
+
         #data3 {
             background-color: rgb(198, 200, 202);
         }
@@ -50,9 +51,10 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                <a href="index.php">
-                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
-                </a>
+                    <a href="index.php">
+                        <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada"
+                            style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                    </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -75,7 +77,7 @@ if (!isset($_SESSION['usuario'])) {
                         <span>Asignaciones</span>
                     </a>
                     <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
+                        <li class="sidebar-item">
                             <a href="asig_usuarios.php" class="sidebar-link"><i class="lni lni-user"></i>Personas</a>
                         </li>
                         <li class="sidebar-item">
@@ -123,7 +125,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -145,7 +147,7 @@ if (!isset($_SESSION['usuario'])) {
                                             <br>
                                             <input type="text" class="form-control" id="data3" readonly>
                                             <input type="hidden" class="form-control" id="data" readonly>
-                                            
+
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -156,14 +158,30 @@ if (!isset($_SESSION['usuario'])) {
                                             <ul class="list-group mt-2" id="lista2" style="display:none;"></ul>
                                             <br>
                                             <input type="text" class="form-control" id="data2" readonly>
+                                           
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-12 col-12">
                                         <h4>Acciones</h4>
-                                        <button id="guardar" class="btn btn-primary mt-1 w-100 mb-3">Guardar
+                                        <button id="agregarEquipo" class="btn btn-secondary mt-1 w-100">Agregar
+                                                Equipo</button>
+                                        <button id="guardar" class="btn btn-primary mt-1 w-100 mb-2">Guardar
                                             Asignación</button>
                                         <a href="index.php" class="btn btn-success w-100">Regresar</a>
                                     </div>
+                                    <div class="col-xl-12">
+                                        <h4>Equipos Agregados</h4>
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>SERIAL</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="equiposSeleccionados"></tbody>
+                                        </table>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -182,118 +200,130 @@ if (!isset($_SESSION['usuario'])) {
     <script src="script.js"></script>
     <script>
         $(document).ready(function () {
+    let equipos = []; // Array para almacenar los equipos agregados
 
-            $('#lista').on('click', 'li', function () {
-                let fila = $(this);
+    // Seleccionar usuario
+    $('#lista').on('click', 'li', function () {
+        let Data = $(this).text().split(" - ");
+        $('#data').val(Data[2]); 
+        $('#data3').val(Data[0]); 
+    });
 
-                let Data = fila.text().split(" - ");
-
-                $('#data').val(Data[2]);
-            });
-
-            $('#lista').on('click', 'li', function () {
-                let fila = $(this);
-
-                let Data = fila.text().split(" - ");
-
-                $('#data3').val(Data[0]);
-            });
-
-            $('input[name=filtro]').keyup(function () {
-                if ($(this).val().trim().length > 0) {
-                    let li = "";
-                    $('#lista').show(150);
-
-                    $.ajax({
-                        url: "proceso.php",
-                        method: "GET",
-                        data: { filtro: $(this).val() },
-                        success: function (response) {
-                            response = JSON.parse(response);
-                            response.response.forEach(usu => {
-                                li += "<li class='list-group-item'>" + usu.nombre + " " + usu.apellido + " - " + usu.departamento + "<span class='d-none'>" + " - " + usu.ID_usuario + "</span></li>";
-                            });
-
-                            $('#lista').html(li)
-                        }
-                    });
-                } else {
-                    $('#lista').hide(150);
-                }
-            })
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $('#lista2').on('click', 'li', function () {
-                let fila2 = $(this);
-                let Data2 = fila2.text().split(" - ");
-                console.log(Data2);
-                $('#data2').val(Data2[1]);
-            });
-
-
-            $('input[name=filtro2]').keyup(function () {
-                if ($(this).val().trim().length > 0) {
-                    let li = "";
-                    $('#lista2').show(150);
-
-                    $.ajax({
-                        url: "proceso.php",
-                        method: "GET",
-                        data: { filtro2: $(this).val() },
-                        success: function (response) {
-                            console.log(response);
-                            response = JSON.parse(response);
-                            li = "";
-                            if (response.response.length > 0) {
-                                response.response.forEach(equ => {
-                                    li += "<li class='list-group-item'>" + equ.PLACA + " - " + equ.serial + "</li>";
-                                });
-                            } else {
-                                li = "<li class='list-group-item'>No hay resultados</li>";
-                            }
-                            $('#lista2').html(li);
-                        }
-                    });
-                } else {
-                    $('#lista2').hide(150);
+    // Buscar usuarios
+    $('input[name=filtro]').keyup(function () {
+        if ($(this).val().trim().length > 0) {
+            $.ajax({
+                url: "proceso.php",
+                method: "GET",
+                data: { filtro: $(this).val() },
+                success: function (response) {
+                    response = JSON.parse(response);
+                    let li = response.response.map(usu =>
+                        `<li class='list-group-item'>${usu.nombre} ${usu.apellido} - ${usu.departamento} <span class='d-none'> - ${usu.ID_usuario}</span></li>`
+                    ).join('');
+                    $('#lista').html(li).show(150);
                 }
             });
-        });
+        } else {
+            $('#lista').hide(150);
+        }
+    });
 
-    </script>
-    <script>
-        $(document).ready(function () {
-            $('#guardar').click(function () {
-                let id_usuario = $('#data').val();
-                let placa_equipo = $('#data2').val();
-                let estado_asig = 'ACTIVO';
-                let fecha_asignacion = new Date().toISOString().split('T')[0];
+    // Seleccionar equipo
+    $('#lista2').on('click', 'li', function () {
+        let Data2 = $(this).text().split(" - ");
+        $('#data2').val(Data2[1]); 
+    });
 
-                if (id_usuario && placa_equipo) {
-                    $.ajax({
-                        url: 'guardar_asignacion.php',
-                        method: 'POST',
-                        data: {
-                            id_usuario: id_usuario,
-                            placa_equipo: placa_equipo,
-                            estado_asig: estado_asig,
-                            fecha_asignacion: fecha_asignacion
-                        },
-                        success: function (response) {
-                            alert('Asignación guardada correctamente!');
-                            console.log(response);
-                        },
-                        error: function () {
-                            alert('Hubo un error al guardar la asignación.');
-                        }
-                    });
-                } else {
-                    alert('Por favor, selecciona un usuario y un equipo.');
+    // Buscar equipos
+    $('input[name=filtro2]').keyup(function () {
+        if ($(this).val().trim().length > 0) {
+            $.ajax({
+                url: "proceso.php",
+                method: "GET",
+                data: { filtro2: $(this).val() },
+                success: function (response) {
+                    response = JSON.parse(response);
+                    let li = response.response.length > 0 ?
+                        response.response.map(equ => `<li class='list-group-item'>${equ.PLACA} - ${equ.serial}</li>`).join('') :
+                        "<li class='list-group-item'>No hay resultados</li>";
+                    $('#lista2').html(li).show(150);
                 }
             });
+        } else {
+            $('#lista2').hide(150);
+        }
+    });
+
+    // Agregar equipo a la lista
+    $('#agregarEquipo').click(function () {
+        let placa_equipo = $('#data2').val();
+        if (placa_equipo && !equipos.includes(placa_equipo)) {
+            equipos.push(placa_equipo);
+            actualizarTabla();
+            $('#data2').val('');
+        } else {
+            alert("Seleccione un equipo válido o que no esté repetido.");
+        }
+    });
+
+    // Eliminar equipo de la lista
+    $(document).on('click', '.eliminarEquipo', function () {
+        let placa = $(this).data('placa');
+        equipos = equipos.filter(equipo => equipo !== placa);
+        actualizarTabla();
+    });
+
+    // Actualizar tabla de equipos agregados
+    function actualizarTabla() {
+        let tablaHTML = equipos.map(placa =>
+            `<tr>
+                <td>${placa}</td>
+                <td><button class="btn btn-danger eliminarEquipo" data-placa="${placa}">Eliminar</button></td>
+            </tr>`
+        ).join('');
+        $('#equiposSeleccionados').html(tablaHTML);
+    }
+
+    // Guardar asignación
+    $('#guardar').click(function () {
+    let id_usuario = $('#data').val();
+    let estado_asig = 'ACTIVO';
+    let fecha_asignacion = new Date().toISOString().split('T')[0];
+
+    if (id_usuario && equipos.length > 0) {
+        $.ajax({
+            url: 'guardar_asignacion.php',
+            method: 'POST',
+            data: {
+                id_usuario: id_usuario,
+                equipos: JSON.stringify(equipos),
+                estado_asig: estado_asig,
+                fecha_asignacion: fecha_asignacion
+            },
+            success: function (response) {
+                try {
+                    let res = typeof response === "string" ? JSON.parse(response) : response;
+                    alert(res.message);
+                    if (res.status === 'success') {
+                        equipos = [];
+                        actualizarTabla();
+                    }
+                } catch (e) {
+                    console.error('Error al procesar la respuesta del servidor:', e);
+                    alert('Error al procesar la respuesta del servidor. Consulta la consola para más detalles.');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error AJAX:', textStatus, errorThrown, jqXHR.responseText);
+                alert('Hubo un error al guardar la asignación. Consulta la consola para más detalles.');
+            }
         });
+    } else {
+        alert('Seleccione un usuario y al menos un equipo.');
+    }
+});
+});
 
     </script>
 </body>
