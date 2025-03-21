@@ -163,7 +163,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <table class="table table-striped">
                                     <thead>
                                         <tr class="highlight">
-                                            <th scope="col">Consecutivo carta de asignacion</th>
+                                            <th scope="col">Serial</th>
                                             <th scope="col">Fecha de Inicio</th>
                                             <th scope="col">Fecha de Finalizacion</th>
                                             <th scope="col">Usuario</th>
@@ -195,11 +195,11 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        $sql = "SELECT m.fk_numero_consecutivo, m.fecha_inicio, m.fecha_fin, a.FK_id, u.nombre  
+                                        $sql = "SELECT m.fk_serial, m.fecha_inicio, m.fecha_fin, a.FK_id, u.nombre  
                                         FROM mantenimiento m
-                                        JOIN asignacion a ON m.fk_numero_consecutivo = a.numero_consecutivo
+                                        JOIN asignacion a ON m.fk_serial = a.numero_consecutivo
                                         JOIN usuarios u ON a.FK_id = u.ID_usuario
-                                        WHERE m.fk_numero_consecutivo LIKE ?
+                                        WHERE m.fk_serial LIKE ?
                                         LIMIT $start_from, $results_per_page";                                        $stmt = $conn->prepare($sql);
                                         $search_term = "%". $search . "%";
                                         $stmt->bind_param("s", $search_term);
@@ -208,7 +208,7 @@ if (!isset($_SESSION['usuario'])) {
                                         if ($result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
                                                 echo "<tr>";
-                                                echo "<td> A-" . htmlspecialchars($row['fk_numero_consecutivo']) . "</td>";
+                                                echo "<td> A-" . htmlspecialchars($row['fk_serial']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['fecha_inicio']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['fecha_fin']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
@@ -220,10 +220,10 @@ if (!isset($_SESSION['usuario'])) {
                                                 echo "</tr>";
                                             }
                                         } else {
-                                            echo "<tr><td colspan='5' class='text-center'>No hay usuarios registrados</td></tr>";
+                                            echo "<tr><td colspan='5' class='text-center'>No hay mantenimientos registrados</td></tr>";
                                         }
 
-                                        $sql = "SELECT COUNT(*) AS total FROM mantenimiento WHERE fk_numero_consecutivo LIKE ? ";
+                                        $sql = "SELECT COUNT(*) AS total FROM mantenimiento WHERE fk_serial LIKE ? ";
                                         $stmt = $conn->prepare($sql);
                                         $stmt->bind_param("s", $search_term);
                                         $stmt->execute();

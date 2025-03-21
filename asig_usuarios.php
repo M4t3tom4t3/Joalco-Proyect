@@ -207,7 +207,7 @@ if (!isset($_SESSION['usuario'])) {
                                                 echo "<td> A-" . htmlspecialchars($row['numero_consecutivo']) . "</td>";
                                                 echo "<td>
                                                  
-                                                 <a href='HTMLPDF2.php?id=" . $row['numero_consecutivo'] . "' class='btn btn-warning btn-sm edit-btn'>
+                                                 <a href='HTMLPDF2.php?numero_consecutivo=" . $row['numero_consecutivo'] . "' class='btn btn-warning btn-sm edit-btn'>
                                                  <i class='lni lni-download'></i>
                                                  </a>
 

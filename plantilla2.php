@@ -11,27 +11,114 @@ function getPlantilla($numero_consecutivo){
         die("Conexión fallida: " . $conn->connect_error);
     }
 
-    $numero_consecutivo = intval($numero_consecutivo);
-
-    $sql = "SELECT * FROM asignacion WHERE numero_consecutivo = ?";
+    $sql = "SELECT u.nombre, u.apellido, u.cargo, u.departamento, u.ciudad, a.numero_consecutivo, 
+    DATE_FORMAT(a.fecha_asignacion, '%d/%m/%Y') AS fecha_asignacion 
+    FROM usuarios u
+    JOIN asignacion a ON a.FK_id = u.ID_usuario
+    WHERE a.numero_consecutivo = ?";
     $stmt = $conn->prepare($sql);
-
-    if (!$stmt) {
-        die("Error en la preparación de la consulta: " . $conn->error);
-    }
-    
     $stmt->bind_param("i", $numero_consecutivo);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $usuario = $result->fetch_assoc();
-        var_dump($usuario);
     } else {
         return "<p>No se encontró el usuario.</p>";
     }
 
-    $stmt->close();
+    $query_activos = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.PLACA, e.sistema_operativo, 
+                               e.procesador, e.ram, e.disco, e.ip_wlan, e.usuario_dominio, 
+                               a.numero_consecutivo 
+                       FROM equipos e
+                       JOIN asignacion a ON a.FK_serial = e.serial
+                       WHERE a.numero_consecutivo = ?";
+    $stmt = $conn->prepare($query_activos);
+    if (!$stmt) {
+        die("Error en la preparación de la consulta: " . $conn->error);
+    }
+    $stmt->bind_param("i", $numero_consecutivo);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+    $stmt->execute();
+$result = $stmt->get_result();
+
+$PC = $Portatil = [
+    "fecha_asignacion" => "N/A",
+    "disco" => "N/A",
+    "ram" => "N/A",
+    "sistema_operativo" => "N/A",
+    "procesador" => "N/A",
+    "ip_wlan" => "N/A",
+    "usuario_dominio" => "N/A",
+    "numero_consecutivo" => "N/A" 
+];
+
+while ($row = $result->fetch_assoc()) {
+    if ($row["nombre_equipo"] === "PC") {
+        $PC = [
+            "fecha_asignacion" => htmlspecialchars($row["fecha_asignacion"]),
+            "disco" => htmlspecialchars($row["disco"]),
+            "ram" => htmlspecialchars($row["ram"]),
+            "sistema_operativo" => htmlspecialchars($row["sistema_operativo"]),
+            "procesador" => htmlspecialchars($row["procesador"]),
+            "ip_wlan" => htmlspecialchars($row["ip_wlan"]),
+            "usuario_dominio" => htmlspecialchars($row["usuario_dominio"]),
+            "numero_consecutivo" => htmlspecialchars($row["numero_consecutivo"])
+        ];
+    } elseif ($row["nombre_equipo"] === "PORTATIL") {
+        $Portatil = [
+            "fecha_asignacion" => htmlspecialchars($row["fecha_asignacion"]),
+            "disco" => htmlspecialchars($row["disco"]),
+            "ram" => htmlspecialchars($row["ram"]),
+            "sistema_operativo" => htmlspecialchars($row["sistema_operativo"]),
+            "procesador" => htmlspecialchars($row["procesador"]),
+            "ip_wlan" => htmlspecialchars($row["ip_wlan"]),
+            "usuario_dominio" => htmlspecialchars($row["usuario_dominio"]),
+            "numero_consecutivo" => htmlspecialchars($row["numero_consecutivo"])
+        ];
+    }
+}
+
+$query_fecha_actual = "SELECT fecha_asignacion, FK_id FROM asignacion WHERE numero_consecutivo = ?";
+$stmt_fecha = $conn->prepare($query_fecha_actual);
+$stmt_fecha->bind_param("i", $numero_consecutivo);
+$stmt_fecha->execute();
+$result_fecha = $stmt_fecha->get_result();
+
+if ($row = $result_fecha->fetch_assoc()) {
+    $fecha_asignacion_actual = $row['fecha_asignacion'];
+    $id_usuario = $row['FK_id'];
+} else {
+    die("Error: No se encontró la carta de asignación.");
+}
+
+$query_previos = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.PLACA, 
+                         e.sistema_operativo, e.procesador, e.ram, e.disco, e.ip_lan, 
+                         e.usuario_dominio, a.numero_consecutivo, a.estado_asig, a.fecha_asignacion
+                  FROM equipos e
+                  JOIN asignacion a ON a.FK_serial = e.serial 
+                  WHERE a.FK_id = ? 
+                  AND a.fecha_asignacion < ?  
+                  ORDER BY a.fecha_asignacion DESC";
+
+$stmt_previos = $conn->prepare($query_previos);
+$stmt_previos->bind_param("is", $id_usuario, $fecha_asignacion_actual);
+$stmt_previos->execute();
+$result_previos = $stmt_previos->get_result();
+    
+    $data2 = [];
+    while ($row = $result_previos ->fetch_assoc()) {
+        $data2[] = $row;
+    }
+
+
+
     $conn->close();
 $contenido='
 <body>
@@ -75,16 +162,16 @@ $contenido='
             <th colspan="2" class="blue-header">N°.CONSECUTIVO</th>
         </tr>
         <tr>
-            <td colspan="8" class="cell-custom1" style="text-align: center;"></td>
-            <td colspan="2" style="text-align: center;">A-</td>
+            <td colspan="8" class="cell-custom1" style="text-align: center;">' . htmlspecialchars($usuario['nombre']) . ' ' . htmlspecialchars($usuario['apellido']) . '</td>
+            <td colspan="2" style="text-align: center;">A-' . htmlspecialchars($usuario['numero_consecutivo']) . '</td>
         </tr>
         <tr class="blue-header">
             <th colspan="7" class="blue-header">CIUDAD</th>
             <th colspan="3" class="blue-header">AREA</th>
         </tr>
         <tr>
-            <td colspan="7" class="cell-custom1" style="text-align: center;"></td>
-            <td colspan="3" style="text-align: center;"></td>
+            <td colspan="7" class="cell-custom1" style="text-align: center;">' . htmlspecialchars($usuario['ciudad']) . '</td>
+            <td colspan="3" style="text-align: center;">' . htmlspecialchars($usuario['departamento']) . '</td>
         </tr>
         <tr class="white-header">
             <th colspan="10" class="white-header"></th>
@@ -95,9 +182,9 @@ $contenido='
             <th colspan="2" class="blue-header">FECHA DE ENTREGA</th>
         </tr>
         <tr>
-            <td colspan="5" class="cell-custom1" style="text-align: center;"></td>
-            <td colspan="3" style="text-align: center;" ></td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="5" class="cell-custom1" style="text-align: center;">' . htmlspecialchars($usuario['cargo']) . '</td>
+            <td colspan="3" style="text-align: center;" >' . htmlspecialchars($usuario['fecha_asignacion']) . '</td>
+            <td colspan="2" style="text-align: center;">' . htmlspecialchars($usuario['fecha_asignacion']) . '</td>
         </tr>
         <tr class="white-header">
             <th colspan="10" class="white-header"></th>
@@ -116,95 +203,95 @@ $contenido='
             <th colspan="2" class="blue-header">COD.CONTROL</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[0]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[0]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[0]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[0]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[0]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[1]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[1]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[1]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[1]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[1]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[2]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[2]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[2]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[2]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[2]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[3]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[3]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[3]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[3]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[3]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[4]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[4]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[4]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[4]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[4]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[5]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[5]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[5]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[5]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[5]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[6]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[6]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[6]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[6]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[6]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[7]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[7]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[7]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[7]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[7]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[8]['modeloe_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[8]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[8]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[8]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[8]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data[9]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data[9]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data[9]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[9]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data[9]['PLACA'] ?? '') . '</th>
         </tr>
     </table>
 
     <table>
         <tr >
             <th colspan="1" class="cell-custom2" style="font-weight: bold; text-align: center;" >DISCO:</th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . ($PC["disco"] !== "N/A" ? $PC["disco"] : $Portatil["disco"]) . '</th>
             <th colspan="1" style="font-weight: bold; text-align: center;" >Sistema Operativo:</th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . ($PC["sistema_operativo"] !== "N/A" ? $PC["sistema_operativo"] : $Portatil["sistema_operativo"]) . '</th>
         </tr>
         <tr >
             <th colspan="1" style="font-weight: bold; text-align: center;" >MEMORIA:</th>
-            <th colspan="2" > RAM</th>
+            <th colspan="2" >' . ($PC["ram"] !== "N/A" ? $PC["ram"] : $Portatil["ram"]) . ' RAM</th>
             <th colspan="1" style="font-weight: bold; text-align: center;" >IP:</th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . ($PC["ip_wlan"] !== "N/A" ? $PC["ip_wlan"] : $Portatil["ip_wlan"]) . '</th>
         </tr>
         <tr >
             <th colspan="1" style="font-weight: bold; text-align: center;" >PROCESADOR:</th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . ($PC["procesador"] !== "N/A" ? $PC["procesador"] : $Portatil["procesador"]) . '</th>
             <th colspan="1" style="font-weight: bold; text-align: center;" >USUARIO DOMINIO:</th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . ($PC["usuario_dominio"] !== "N/A" ? $PC["usuario_dominio"] : $Portatil["usuario_dominio"]) . '</th>
         </tr>
     </table>
     <table>
@@ -219,74 +306,74 @@ $contenido='
             <th colspan="2" class="blue-header">COD.CONTROL</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[0]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[0]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[0]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[0]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[0]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[1]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[1]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[1]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[1]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[1]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" </th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[2]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[2]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[2]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[2]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[2]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[3]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[3]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[3]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[3]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[3]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[4]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[4]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[4]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[4]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[4]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[5]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[5]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[5]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[5]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[5]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[6]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[6]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[6]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[6]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[6]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[7]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[7]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[7]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[7]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[7]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></th>
+            <th colspan="2" >' . htmlspecialchars($data2[8]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[8]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[8]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[8]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[8]['PLACA'] ?? '') . '</th>
         </tr>
         <tr >
-            <th colspan="2" ></th>
-            <th colspan="1" ></th>
-            <th colspan="4" ></th>
-            <th colspan="2" ></th>
-            <th colspan="2" ></tr>
+            <th colspan="2" >' . htmlspecialchars($data2[9]['nombre_equipo'] ?? '') . '</th>
+            <th colspan="1" >' . htmlspecialchars($data2[9]['marca'] ?? '') . '</th>
+            <th colspan="4" >' . htmlspecialchars($data2[9]['modelo'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[9]['serial'] ?? '') . '</th>
+            <th colspan="2" >' . htmlspecialchars($data2[9]['PLACA'] ?? '') . ' </tr>
     </table>
     <table>
         <tr class="blue-header">modelo<th colspan="11" class="blue-header">USUARIO</th>

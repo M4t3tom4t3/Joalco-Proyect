@@ -74,36 +74,7 @@ function getPlantilla($serial){
         $data[] = $row;
     }
 
-    $sql_mantenimiento = "SELECT 
-        DATE_FORMAT(m.fecha_inicio, '%d/%m/%Y') AS fecha_inicio,
-        DATE_FORMAT(m.fecha_fin, '%d/%m/%Y') AS fecha_fin,
-        m.observaciones,
-        m.tecnico,
-        m.tipo,
-        m.ciudad
-    FROM mantenimiento m
-    INNER JOIN asignacion a ON m.fk_numero_consecutivo = a.numero_consecutivo
-    WHERE a.fk_serial = ? 
-    ORDER BY fecha_asignacion desc";
-    $stmt = $conn->prepare($sql_mantenimiento);
-    $stmt->bind_param("s", $serial);
-    $stmt->execute();
-    $resultado_mantenimiento = $stmt->get_result();
-
-    $mantenimientos = [];
-while ($fila = $resultado_mantenimiento->fetch_assoc()) {
-    $mantenimientos[] = $fila;
-}
-
-for ($i = count($mantenimientos); $i < 10; $i++) {
-    $mantenimientos[] = [
-        'fecha_inicio' => '',
-        'fecha_fin' => '',
-        'observaciones' => '',
-        'tecnico' => '',
-        'ciudad' => ''
-    ];
-}
+    
     $stmt->close();
     $conn->close();
     
@@ -183,8 +154,8 @@ $contenido='
             <td style="background-color:rgb(194, 190, 190); font-weight: bold;">Pantalla</td>
             <td colspan="3">#N/D</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[0]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[0]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
@@ -192,8 +163,8 @@ $contenido='
             <td style="background-color:rgb(194, 190, 190); font-weight: bold;">Serial CPU</td>
             <td colspan="3">'.$serial.'</td>
             <td ></td>
-            <td>' . htmlspecialchars($mantenimientos[1]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[1]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
@@ -201,8 +172,8 @@ $contenido='
             <td style="background-color:rgb(194, 190, 190); font-weight: bold;">Serial Mouse</td>
             <td colspan="3">#N/D</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[2]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[2]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
@@ -211,56 +182,56 @@ $contenido='
             <td style="background-color:rgb(194, 190, 190); font-weight: bold;">Memoria RAM</td>
             <td colspan="2">' . htmlspecialchars($equipo['ram']) . ' RAM</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[3]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[3]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
             <td colspan="2" style="background-color:rgb(194, 190, 190); font-weight: bold;">Procesador</td>
             <td colspan="3">' . htmlspecialchars($equipo['procesador']) . '</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[4]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[4]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
             <td colspan="2" style="background-color:rgb(194, 190, 190); font-weight: bold;">Sistema Operativo</td>
             <td colspan="3">' . htmlspecialchars($equipo['sistema_operativo']) . '</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[5]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[5]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
             <td colspan="2" style="background-color:rgb(194, 190, 190); font-weight: bold;">Licencia Windows</td>
             <td colspan="3">' . htmlspecialchars($equipo['licencia_w']) . '</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[6]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[6]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
             <td colspan="2" style="background-color:rgb(194, 190, 190); font-weight: bold;">Tipo de Licencia Windows</td>
             <td colspan="3">#N/D</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[7]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[7]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
             <td colspan="2" style="background-color:rgb(194, 190, 190); font-weight: bold;">Paquete Office</td>
             <td colspan="3">' . htmlspecialchars($equipo['paquete_of']) . '</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[8]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[8]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
             <td colspan="2" style="background-color:rgb(194, 190, 190); font-weight: bold;">Licencia Office</td>
             <td colspan="3">#N/D</td>
             <td></td>
-            <td>' . htmlspecialchars($mantenimientos[9]['fecha_inicio']) . '</td>
-            <td>' . htmlspecialchars($mantenimientos[9]['tecnico']) . '</td>
+            <td></td>
+            <td></td>
             <td colspan="3"></td>
         </tr>
         <tr>
