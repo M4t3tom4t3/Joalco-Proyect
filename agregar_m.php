@@ -13,41 +13,55 @@ $dbname = "jp";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar la conexión
+
 if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Obtener los valores del formulario
-    $fk_numero_consecutivo = $_POST['data_consecutivo'];
+    
+    $fk_serial = $_POST['data_consecutivo'];
     $fecha_inicio = $_POST['fecha_inicio'];
     $fecha_fin = $_POST['fecha_fin'];
     $observaciones = $_POST['observaciones'];
     $tecnico = $_POST['tecnico'];
 
-    // Validar que los campos no estén vacíos
-    if (!empty($fk_numero_consecutivo) && !empty($fecha_inicio) && !empty($fecha_fin) && !empty($observaciones)) {
-        // Preparar la consulta SQL para insertar los datos
-        $query = $conn->prepare("INSERT INTO mantenimiento (fk_numero_consecutivo, fecha_inicio, fecha_fin, tecnico, observaciones)
-        VALUES (?, ?, ?, ?, ?)");
+    
+    if (!empty($fk_serial) && !empty($fecha_inicio) && !empty($fecha_fin) && !empty($observaciones)) {
 
-        // Enlaza los parámetros de manera segura
-        $query->bind_param("sssss", $fk_numero_consecutivo, $fecha_inicio, $fecha_fin, $tecnico, $observaciones);
+        // Obtener el usuario asignado más reciente para el equipo
+        $sql = "SELECT FK_id FROM asignacion WHERE FK_serial = ? ORDER BY fecha_asignacion DESC LIMIT 1";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $fk_serial);
+        $stmt->execute();
+        $stmt->bind_result($fk_id);
+        $stmt->fetch();
+        $stmt->close();
 
-        // Ejecuta la consulta
+        // Si no hay usuario asignado, establecerlo como NULL
+        if (empty($fk_id)) {
+            $fk_id = NULL;
+        }
+
+        // Insertar el mantenimiento con el usuario asignado en ese momento
+        $query = $conn->prepare("INSERT INTO mantenimiento (fk_serial, fecha_inicio, fecha_fin, tecnico, observaciones, fk_id) 
+                                VALUES (?, ?, ?, ?, ?, ?)");
+
+        $query->bind_param("sssssi", $fk_serial, $fecha_inicio, $fecha_fin, $tecnico, $observaciones, $fk_id);
+
         if ($query->execute()) {
-            // Redirige al usuario si la consulta fue exitosa
             header("Location: mantenimiento.php");
-            exit(); // Asegúrate de que después de header() haya un exit() para detener el script
+            exit(); 
         } else {
-            // Manejo del error
             echo "Error al guardar los datos: " . $query->error;
         }
+        
+        $query->close();
     } else {
         echo "Por favor, complete todos los campos del formulario.";
     }
 }
+
 
 $conn->close();
 ?>
@@ -212,57 +226,49 @@ $conn->close();
     <script src="script.js"></script>
     <script>
         $(document).ready(function () {
-            $('input[name=filtro_consecutivo]').keyup(function () {
-                if ($(this).val().trim().length > 0) {
-                    let li = "";
-                    $('#lista_consecutivo').show(150);
+    $('input[name=filtro_consecutivo]').keyup(function () { 
+        if ($(this).val().trim().length > 0) {
+            let li = "";
+            $('#lista_consecutivo').show(150);
 
-                    $.ajax({
-                        url: "proceso_consecutivo.php", // Asegúrate de que esta URL es correcta
-                        method: "GET",
-                        data: { filtro_consecutivo: $(this).val() },
-                        success: function (response) {
-                            // Asegúrate de que la respuesta es un objeto JSON
-                            console.log(response);
+            $.ajax({
+                url: "proceso_consecutivo.php",
+                method: "GET",
+                data: { filtro_serial: $(this).val() }, 
+                success: function (response) {
+                    console.log(response);
+                    response = JSON.parse(response);
+                    li = "";
 
-                            response = JSON.parse(response); // Esto puede no ser necesario si el servidor ya devuelve JSON
-
-                            li = ""; // Limpiamos la lista antes de agregar nuevos elementos
-
-                            // Verifica si la respuesta tiene datos
-                            if (response.response.length > 0) {
-                                response.response.forEach(item => {
-                                    // Accede a las propiedades correctas del objeto
-                                    li += "<li class='list-group-item'>" + item.numero_consecutivo + " - " + item.FK_serial + "</li>";
-                                });
-                            } else {
-                                li = "<li class='list-group-item'>No hay resultados</li>";
-                            }
-                            // Agrega los elementos de la lista al DOM
-                            $('#lista_consecutivo').html(li);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error al obtener los datos: ", error);
-                            alert('Hubo un error al obtener los datos.');
-                        }
-                    });
-                } else {
-                    $('#lista_consecutivo').hide(150);
+                    if (response.response.length > 0) {
+                        response.response.forEach(item => {
+                            li += "<li class='list-group-item'>" + item.serial + "</li>"; 
+                        });
+                    } else {
+                        li = "<li class='list-group-item'>No hay resultados</li>";
+                    }
+                    $('#lista_consecutivo').html(li);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al obtener los datos: ", error);
+                    alert('Hubo un error al obtener los datos.');
                 }
             });
+        } else {
+            $('#lista_consecutivo').hide(150);
+        }
+    });
 
-            // Acción al seleccionar un ítem de la lista
-            $('#lista_consecutivo').on('click', 'li', function () {
-                let fila = $(this);
-                let Data = fila.text().split(" - ");
-                console.log(Data);
-                $('#data_consecutivo').val(Data[0]); // Esto asigna el número consecutivo al campo de texto
-            });
+    $('#lista_consecutivo').on('click', 'li', function () {
+        let serialSeleccionado = $(this).text();
+        console.log(serialSeleccionado);
+        $('#data_consecutivo').val(serialSeleccionado); 
+    });
+
         });
         $('form').submit(function(e) {
     let valido = true;
 
-    // Validar campos
     if ($('#data_consecutivo').val() === '') {
         valido = false;
         alert('El número consecutivo es obligatorio');
@@ -276,7 +282,6 @@ $conn->close();
         alert('Las observaciones son obligatorias');
     }
 
-    // Si no es válido, evitar el envío del formulario
     if (!valido) {
         e.preventDefault();
     }

@@ -11,96 +11,101 @@ function getPlantilla($id){
         die("Conexión fallida: " . $conn->connect_error);
     }
 
-    $sql = "SELECT nombre, apellido, cargo, departamento, ciudad FROM usuarios WHERE ID_usuario = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $sql = "SELECT fk_serial, fk_id, 
+        DATE_FORMAT(fecha_inicio, '%Y-%m-%d') AS fecha_inicio,
+        DATE_FORMAT(fecha_inicio, '%H:%i:%s') AS hora_inicio,
+        DATE_FORMAT(fecha_fin, '%Y-%m-%d') AS fecha_fin,
+        DATE_FORMAT(fecha_fin, '%H:%i:%s') AS hora_fin,
+        tecnico, ciudad, observaciones 
+    FROM mantenimiento WHERE id = ?";
+    
+    $stmt1 = $conn->prepare($sql);
+    $stmt1->bind_param("i", $id);
+    $stmt1->execute();
+    $result1 = $stmt1->get_result();
 
-    if ($result->num_rows > 0) {
-        $usuario = $result->fetch_assoc();
+    if ($result1->num_rows > 0) {
+        $mantenimiento = $result1->fetch_assoc();
+        $fk_id = $mantenimiento["fk_id"];
     } else {
-        return "<p>No se encontró el usuario.</p>";
+        return "<p>No se encontró el mantenimiento.</p>";
     }
+    $stmt1->close();
 
+    // Obtener datos de los equipos
     $sql_equipo = "SELECT e.serial, e.nombre_equipo, e.marca, e.modelo, e.hv 
-    FROM equipos e
-    JOIN asignacion a ON e.serial = a.FK_serial
-    WHERE a.FK_id = ? AND a.estado_asig = 'ACTIVO'";
-
-    $stmt = $conn->prepare($sql_equipo);
-    if (!$stmt) {
-    die("Error en la consulta de equipos: " . $conn->error);
+        FROM equipos e
+        JOIN mantenimiento m ON e.serial = m.fK_serial
+        WHERE m.id = ?";
+    
+    $stmt2 = $conn->prepare($sql_equipo);
+    if (!$stmt2) {
+        die("Error en la consulta de equipos: " . $conn->error);
     }
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $resultado_equipos = $stmt->get_result();
+    $stmt2->bind_param("i", $id);
+    $stmt2->execute();
+    $resultado_equipos = $stmt2->get_result();
 
+    // Inicializar variables de equipos
     $PC = $Monitor = $Teclado = $Mouse = $Portatil = $Otros = ["marca" => "", "modelo" => "", "serial" => ""];
 
     while ($equipo = $resultado_equipos->fetch_assoc()) {
-    $datos = [
-    "marca"  => htmlspecialchars($equipo["marca"]),
-    "modelo" => htmlspecialchars($equipo["modelo"]),
-    "serial" => htmlspecialchars($equipo["serial"]),
-    "hv"     => htmlspecialchars($equipo["hv"])
-    ];
+        $datos = [
+            "marca"  => htmlspecialchars($equipo["marca"]),
+            "modelo" => htmlspecialchars($equipo["modelo"]),
+            "serial" => htmlspecialchars($equipo["serial"]),
+            "hv"     => htmlspecialchars($equipo["hv"])
+        ];
 
-    switch ($equipo["nombre_equipo"]) {
-    case "PC":
-        $PC = $datos;
-    break;
-    case "MONITOR":
-        $Monitor = $datos;
-    break;
-    case "TECLADO":
-        $Teclado = $datos;
-    break;
-    case "MOUSE":
-        $Mouse = $datos;
-    break;
-    case "PORTATIL":
-        $Portatil = $datos;
-    break;
-    default:
-        $Otros = $datos;
-    break;
-    }
-    }
-
-    $sql_mantenimiento = "SELECT 
-    m.fk_numero_consecutivo, 
-    DATE_FORMAT(m.fecha_inicio, '%Y-%m-%d') AS fecha_inicio,
-    DATE_FORMAT(m.fecha_inicio, '%H:%i:%s') AS hora_inicio,
-    DATE_FORMAT(m.fecha_fin, '%Y-%m-%d') AS fecha_fin,
-    DATE_FORMAT(m.fecha_fin, '%H:%i:%s') AS hora_fin,
-    m.observaciones, 
-    m.tecnico, 
-    m.ciudad, 
-    m.tipo
-    FROM mantenimiento m
-    JOIN asignacion a ON m.fk_numero_consecutivo = a.numero_consecutivo
-    WHERE a.FK_id = ?";
-        $stmt = $conn->prepare($sql_mantenimiento);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $resultado_mantenimiento = $stmt->get_result();
-    
-        if ($resultado_mantenimiento->num_rows > 0) {
-            $mantenimiento = $resultado_mantenimiento->fetch_assoc();
-        } else {
-            $mantenimiento = [
-                "fk_numero_consecutivo" => "N/A",
-                "fecha_inicio" => "N/A",
-                "fecha_fin" => "N/A",
-                "observaciones" => "N/A",
-                "tecnico" => "N/A",
-                "ciudad" => "N/A",
-                "tipo" => "N/A"
-            ];
+        switch ($equipo["nombre_equipo"]) {
+            case "PC":
+                $PC = $datos;
+                break;
+            case "MONITOR":
+                $Monitor = $datos;
+                break;
+            case "TECLADO":
+                $Teclado = $datos;
+                break;
+            case "MOUSE":
+                $Mouse = $datos;
+                break;
+            case "PORTATIL":
+                $Portatil = $datos;
+                break;
+            default:
+                $Otros = $datos;
+                break;
         }
+    }
+    $stmt2->close();
 
-    $stmt->close();
+    // Obtener datos del usuario solo si existe un fk_id válido
+    if (!empty($fk_id)) {
+        $query_usuarios = "SELECT 
+            u.ID_usuario, u.nombre, u.apellido, u.cargo, 
+            u.departamento, u.ciudad
+        FROM usuarios u
+        WHERE u.ID_usuario = ?";
+
+        $stmt3 = $conn->prepare($query_usuarios);
+        if (!$stmt3) {
+            die("Error en la consulta de usuarios: " . $conn->error);
+        }
+        $stmt3->bind_param("i", $fk_id);
+        $stmt3->execute();
+        $result3 = $stmt3->get_result();
+
+        if ($result3->num_rows > 0) {
+            $usuario = $result3->fetch_assoc();
+        } else {
+            $usuario = null;
+        }
+        $stmt3->close();
+    } else {
+        $usuario = null;
+    }
+
     $conn->close();
 $contenido='
 <body>

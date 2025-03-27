@@ -30,10 +30,13 @@ SELECT
     m.ciudad, 
     COUNT(*) as cantidad_mayor_a_un_ano
 FROM mantenimiento m
+JOIN equipos e ON m.fk_serial = e.serial
 WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui') 
+AND e.nombre_equipo IN ('PC', 'PORTATIL') 
 AND DATEDIFF(CURDATE(), m.fecha_fin) > 365
 GROUP BY m.ciudad;
 ";
+
 $result_mantenimiento_mayor_a_un_ano = mysqli_query($link, $query_mantenimiento_mayor_a_un_ano);
 
 $mayor_a_un_ano = [];
@@ -41,15 +44,19 @@ while ($row = mysqli_fetch_assoc($result_mantenimiento_mayor_a_un_ano)) {
     $mayor_a_un_ano[$row['ciudad']] = (int)$row['cantidad_mayor_a_un_ano'];
 }
 
+// Consulta para equipos con mantenimientos menores o iguales a un año
 $query_mantenimiento_menor_a_un_ano = "
 SELECT 
     m.ciudad, 
     COUNT(*) as cantidad_menor_a_un_ano
 FROM mantenimiento m
-WHERE m.ciudad IN ('Buenaventura', 'Itagui', 'Bogota') 
+JOIN equipos e ON m.fk_serial = e.serial
+WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui') 
+AND e.nombre_equipo IN ('PC', 'PORTATIL') 
 AND DATEDIFF(CURDATE(), m.fecha_fin) <= 365
 GROUP BY m.ciudad;
 ";
+
 $result_mantenimiento_menor_a_un_ano = mysqli_query($link, $query_mantenimiento_menor_a_un_ano);
 
 $menor_a_un_ano = [];
@@ -57,6 +64,7 @@ while ($row = mysqli_fetch_assoc($result_mantenimiento_menor_a_un_ano)) {
     $menor_a_un_ano[$row['ciudad']] = (int)$row['cantidad_menor_a_un_ano'];
 }
 
+// Generar los dataPoints para el gráfico
 $dataPoints3 = [];
 $dataPoints4 = [];
 
@@ -130,35 +138,35 @@ mysqli_close($link);
         }]
     });
     var chart3 = new CanvasJS.Chart("chartContainer3", {
-	animationEnabled: true,
-	theme: "light2",
-	title:{
-		text: "Mantenimientos Regionales"
-	},
-	axisY:{
-		includeZero: true
-	},
-	legend:{
-		cursor: "pointer",
-		verticalAlign: "center",
-		horizontalAlign: "right",
-		itemclick: toggleDataSeries
-	},
-	data: [{
-		type: "column",
-		name: "Pedinetes",
-		indexLabel: "{y}",
-		yValueFormatString: "N°#0.##",
-		showInLegend: true,
-		dataPoints: <?php echo json_encode($dataPoints3, JSON_NUMERIC_CHECK); ?>
-	},{
-		type: "column",
-		name: "Realizados",
-		indexLabel: "{y}",
-		yValueFormatString: "N°#0.##",
-		showInLegend: true,
-		dataPoints: <?php echo json_encode($dataPoints4, JSON_NUMERIC_CHECK); ?>
-	}]
+    animationEnabled: true,
+    theme: "light2",
+    title:{
+        text: "Mantenimientos Regionales - PC y PORTÁTIL"
+    },
+    axisY:{
+        includeZero: true
+    },
+    legend:{
+        cursor: "pointer",
+        verticalAlign: "center",
+        horizontalAlign: "right",
+        itemclick: toggleDataSeries
+    },
+    data: [{
+        type: "column",
+        name: "Mayor a 1 año",
+        indexLabel: "{y}",
+        yValueFormatString: "N°#0.##",
+        showInLegend: true,
+        dataPoints: <?php echo json_encode($dataPoints3, JSON_NUMERIC_CHECK); ?>
+    },{
+        type: "column",
+        name: "Menor o igual a 1 año",
+        indexLabel: "{y}",
+        yValueFormatString: "N°#0.##",
+        showInLegend: true,
+        dataPoints: <?php echo json_encode($dataPoints4, JSON_NUMERIC_CHECK); ?>
+    }]
 });
 
     chart1.render();

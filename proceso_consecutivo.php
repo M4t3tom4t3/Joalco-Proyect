@@ -1,28 +1,22 @@
 <?php
 require 'conexion.php';
 
-if(isset($_GET['filtro_consecutivo'])){
-    $numero_consecutivo = $_GET['filtro_consecutivo'];
+if(isset($_GET['filtro_serial'])){ 
+    $serial = $_GET['filtro_serial'];
     $conexion = new Conexion;
-    $conexion->Query = "SELECT * FROM asignacion WHERE numero_consecutivo LIKE :numero_consecutivo";
+    $conexion->Query = "SELECT serial FROM equipos WHERE serial LIKE :serial";
 
-    try{
+    try {
         $conexion->Pps = $conexion->getBaseDeDatosConection()->prepare($conexion->Query);
-        $conexion->Pps->execute([":numero_consecutivo"=>"%".$numero_consecutivo."%"]);
+        $conexion->Pps->execute([":serial" => "%" . $serial . "%"]);
 
-        // Verifica si la consulta devuelve datos
         $result = $conexion->Pps->fetchAll(PDO::FETCH_OBJ);
-        
-        if ($result) {
-            echo json_encode(['response'=>$result]);
-        } else {
-            echo json_encode(['response'=>[]]);
-        }
-    }catch(\Throwable $th){
-        echo $th->getMessage();
-    }finally{
+
+        echo json_encode(['response' => $result ?: []]); 
+    } catch (\Throwable $th) {
+        echo json_encode(['error' => $th->getMessage()]);
+    } finally {
         $conexion->closeDataBase();
     }
 }
 ?>
-

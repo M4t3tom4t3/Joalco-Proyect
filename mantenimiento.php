@@ -107,17 +107,14 @@ if (!isset($_SESSION['usuario'])) {
 
             $conn = new mysqli($servername, $username, $password, $dbname);
 
-            // Verificar la conexión
             if ($conn->connect_error) {
                 die("Conexión fallida: " . $conn->connect_error);
             }
 
-            // Consultar el número de usuarios
             $query_usuarios = "SELECT COUNT(*) AS total_usuarios FROM usuarios";
             $result_usuarios = $conn->query($query_usuarios);
             $usuarios = $result_usuarios->fetch_assoc();
 
-            // Consultar el número de equipos
             $query_equipos = "SELECT COUNT(*) AS total_equipos FROM equipos";
             $result_equipos = $conn->query($query_equipos);
             $equipos = $result_equipos->fetch_assoc();
@@ -149,7 +146,7 @@ if (!isset($_SESSION['usuario'])) {
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <form class="d-flex" role="search" method="get" action="mantenimiento.php">
                                 <input class="form-control me-2" type="search"
-                                    placeholder="Buscar por Consecutivo" aria-label="Search" name="search"
+                                    placeholder="Buscar por Serial" aria-label="Search" name="search"
                                     value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                                 <button class="btn btn-outline-primary" type="submit">Buscar</button>
                             </form>
@@ -163,10 +160,10 @@ if (!isset($_SESSION['usuario'])) {
                                 <table class="table table-striped">
                                     <thead>
                                         <tr class="highlight">
+                                            <th scope="col">#</th>
                                             <th scope="col">Serial</th>
                                             <th scope="col">Fecha de Inicio</th>
                                             <th scope="col">Fecha de Finalizacion</th>
-                                            <th scope="col">Usuario</th>
                                             <th scope="col">Acciones</th>
                                         </tr>
                                     </thead>
@@ -195,10 +192,8 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        $sql = "SELECT m.fk_serial, m.fecha_inicio, m.fecha_fin, a.FK_id, u.nombre  
+                                        $sql = "SELECT m.id, m.fk_serial, m.fecha_inicio, m.fecha_fin 
                                         FROM mantenimiento m
-                                        JOIN asignacion a ON m.fk_serial = a.numero_consecutivo
-                                        JOIN usuarios u ON a.FK_id = u.ID_usuario
                                         WHERE m.fk_serial LIKE ?
                                         LIMIT $start_from, $results_per_page";                                        $stmt = $conn->prepare($sql);
                                         $search_term = "%". $search . "%";
@@ -208,14 +203,14 @@ if (!isset($_SESSION['usuario'])) {
                                         if ($result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
                                                 echo "<tr>";
-                                                echo "<td> A-" . htmlspecialchars($row['fk_serial']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['fk_serial']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['fecha_inicio']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['fecha_fin']) . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
                                                 echo "<td>
-                                                <a href='HTMLPDF3.php?id=" . $row['FK_id'] . "' class='btn btn-warning btn-sm edit-btn'>
-                                                 <i class='lni lni-download'></i>
-                                                 </a>
+                                                <a href='HTMLPDF3.php?id=" . $row['id'] . "' class='btn btn-warning btn-sm edit-btn'>
+                                                <i class='lni lni-download'></i>
+                                                </a>
                                                 </td>";
                                                 echo "</tr>";
                                             }

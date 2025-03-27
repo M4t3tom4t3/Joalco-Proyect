@@ -12,18 +12,16 @@ try {
 
         $conexion = new Conexion;
 
-        // Obtener último número consecutivo y sumarle 1
         $conexion->Query = "SELECT MAX(numero_consecutivo) as max_consec FROM asignacion";
         $conexion->Pps = $conexion->getBaseDeDatosConection()->prepare($conexion->Query);
         $conexion->Pps->execute();
         $resultado = $conexion->Pps->fetch(PDO::FETCH_ASSOC);
         $nuevo_consecutivo = ($resultado['max_consec'] ?? 0) + 1;
 
-        $pdo = $conexion->getBaseDeDatosConection(); // Obtener la instancia PDO
+        $pdo = $conexion->getBaseDeDatosConection(); 
 
-        $pdo->beginTransaction(); // Iniciar la transacción
+        $pdo->beginTransaction(); 
 
-        // Insertar todos los equipos con el mismo número_consecutivo
         foreach ($equipos as $placa_equipo) {
             $conexion->Query = "INSERT INTO asignacion (numero_consecutivo, FK_id, FK_serial, estado_asig, fecha_asignacion) 
                                  VALUES (:consec, :id_usuario, :placa_equipo, :estado_asig, :fecha_asignacion)";
