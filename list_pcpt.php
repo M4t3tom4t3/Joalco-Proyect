@@ -113,6 +113,10 @@ if (!isset($_SESSION['usuario'])) {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                             <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                            <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -154,7 +158,6 @@ if (!isset($_SESSION['usuario'])) {
                                         $password = "";
                                         $dbname = "jp";
 
-                                        // Conexión a la base de datos
                                         $conn = new mysqli($servername, $username, $password, $dbname);
 
                                         if ($conn->connect_error) {
@@ -163,7 +166,6 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $results_per_page = 7;
 
-                                        // Obtener el número de página de la URL, si no se establece, se asume página 1
                                         if (isset($_GET['page']) && is_numeric($_GET['page'])) {
                                             $page = $_GET['page'];
                                         } else {
@@ -172,10 +174,8 @@ if (!isset($_SESSION['usuario'])) {
 
                                         $start_from = ($page - 1) * $results_per_page;
 
-                                        // Obtener el término de búsqueda desde la URL
                                         $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                                        // Consulta SQL para obtener los equipos, filtrando por nombre_equipo, marca, PLACA o serial
                                         $sql = "SELECT PLACA, serial, nombre_equipo, marca, modelo 
                                                 FROM equipos 
                                                 WHERE (nombre_equipo LIKE ? OR marca LIKE ? OR serial LIKE ? OR PLACA LIKE ?) 
@@ -183,10 +183,8 @@ if (!isset($_SESSION['usuario'])) {
                                                 LIMIT ?, ?";
                                         $stmt = $conn->prepare($sql);
 
-                                        // Definir los términos de búsqueda con los wildcards
                                         $search_term = "%" . $search . "%";
 
-                                        // Vincular parámetros (ten en cuenta que los parámetros deben estar en el orden adecuado)
                                         $stmt->bind_param("ssssii", $search_term, $search_term, $search_term, $search_term, $start_from, $results_per_page);
 
                                         $stmt->execute();
@@ -235,7 +233,6 @@ if (!isset($_SESSION['usuario'])) {
                                 </table>
                                 <nav aria-label="Page navigation example">
                                     <ul class="pagination justify-content-center">
-                                        <!-- Botón para ir a la primera página -->
                                         <li class="page-item <?php if ($page <= 1)
                                             echo 'disabled'; ?>">
                                             <a class="page-link" href="?page=1&search=<?php echo urlencode($search); ?>"
@@ -244,7 +241,6 @@ if (!isset($_SESSION['usuario'])) {
                                             </a>
                                         </li>
 
-                                        <!-- Botón para ir a la página anterior -->
                                         <li class="page-item <?php if ($page <= 1)
                                             echo 'disabled'; ?>">
                                             <a class="page-link"
@@ -266,7 +262,6 @@ if (!isset($_SESSION['usuario'])) {
                                         }
                                         ?>
 
-                                        <!-- Botón para ir a la página siguiente -->
                                         <li class="page-item <?php if ($page >= $total_pages)
                                             echo 'disabled'; ?>">
                                             <a class="page-link"
@@ -276,7 +271,6 @@ if (!isset($_SESSION['usuario'])) {
                                             </a>
                                         </li>
 
-                                        <!-- Botón para ir a la última página -->
                                         <li class="page-item <?php if ($page >= $total_pages)
                                             echo 'disabled'; ?>">
                                             <a class="page-link"

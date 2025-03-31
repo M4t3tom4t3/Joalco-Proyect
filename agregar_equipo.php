@@ -53,12 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $target_file = $target_dir . basename($_FILES["ruta_img"]["name"]);
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-        // Verificar si el archivo es una imagen (opcional)
         $check = getimagesize($_FILES["ruta_img"]["tmp_name"]);
         if ($check !== false) {
-            // Intentar mover el archivo a la carpeta Equipos
             if (move_uploaded_file($_FILES["ruta_img"]["tmp_name"], $target_file)) {
-                // Si el archivo se subió correctamente, almacenamos la ruta en la base de datos
                 $ruta_img = $target_file;
             } else {
                 echo "Lo siento, hubo un error al subir el archivo.";
@@ -69,18 +66,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
     } else {
-        $ruta_img = null; // Si no se subió una imagen
+        $ruta_img = null; 
     }
 
-    // Comprobamos si ruta_img es NULL o una cadena vacía
     if ($ruta_img === null) {
-        $ruta_img = "NULL"; // Si no se subió imagen, asignamos NULL
+        $ruta_img = "NULL"; 
     } else {
-        // Si se subió imagen, lo dejamos como está
-        $ruta_img = "'$ruta_img'"; // Aseguramos que esté entre comillas
+        $ruta_img = "'$ruta_img'"; 
     }
 
-    // Preparar la consulta SQL
     $sql = "INSERT INTO equipos (
             serial, marca, modelo, nombre_equipo, placa, activo_fijo, estado, 
             ip_lan, ip_wlan, usuario_dominio, hv, sistema_operativo, ram, disco, 
@@ -104,17 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $error_message = "";
 
-// Verificar si se ha enviado el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Obtener los valores del formulario
     $serial = $_POST['serial'];
     $placa = $_POST['placa'];
     $hv = $_POST['hv'];
 
-    // Consulta para verificar si el serial, placa o hoja de vida ya están registrados
     $sql = "SELECT * FROM equipos WHERE serial = ? OR placa = ? OR hv = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssi", $serial, $placa, $hv); // Asegúrate de que el tipo de datos coincida con los tipos en la base de datos
+    $stmt->bind_param("ssi", $serial, $placa, $hv);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -221,6 +212,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                             <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                            <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>

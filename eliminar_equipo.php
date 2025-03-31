@@ -2,17 +2,15 @@
 session_start();
 
 if (!isset($_SESSION['usuario']) || $_SESSION['rol'] != 'admin') {
-    // Si no está logueado o no tiene rol de administrador, redirige a otra página
     header("Location: index.php");
     exit();
 }
 
-$eliminado = false; // Variable para saber si se eliminó correctamente
+$eliminado = false; 
 
-if (isset($_GET['serial'])) {
-    $serial = $_GET['serial'];
+if (isset($_GET['ID_usuario'])) {
+    $ID_usuario = $_GET['ID_usuario'];
 
-    // Conectar a la base de datos
     $servername = "localhost";
     $username = "root";
     $password = "";
@@ -24,14 +22,13 @@ if (isset($_GET['serial'])) {
         die("Conexión fallida: " . $mysqli->connect_error);
     }
 
-    // Eliminar el equipo de la base de datos
     $stmt = $mysqli->prepare("DELETE FROM equipos WHERE serial = ?");
     $stmt->bind_param("s", $serial);
 
     if ($stmt->execute()) {
-        $eliminado = true; // Se eliminó correctamente
+        $eliminado = true; 
     } else {
-        $eliminado = false; // Hubo un error
+        $eliminado = false; 
     }
 
     $stmt->close();
@@ -45,7 +42,6 @@ if (isset($_GET['serial'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultado de Eliminación</title>
-    <!-- Agregar el enlace a SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>

@@ -110,6 +110,10 @@ if (!isset($_SESSION['usuario'])) {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                             <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                            <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -177,6 +181,7 @@ if (!isset($_SESSION['usuario'])) {
                                         $result = $stmt->get_result();
                                         if ($result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
+                                                $ID_usuario = htmlspecialchars($row['ID_usuario']);
                                                 echo "<tr>";
                                                 echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['apellido']) . "</td>";
@@ -319,6 +324,7 @@ if (!isset($_SESSION['usuario'])) {
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).on('click', '.edit-btn', function () {
             var userId = $(this).data('id');
@@ -364,6 +370,7 @@ if (!isset($_SESSION['usuario'])) {
         });
 
     </script>
+    
 
 </body>
 

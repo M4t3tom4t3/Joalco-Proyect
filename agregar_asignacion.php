@@ -126,6 +126,10 @@ if (!isset($_SESSION['usuario'])) {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                                 <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -200,16 +204,14 @@ if (!isset($_SESSION['usuario'])) {
     <script src="script.js"></script>
     <script>
         $(document).ready(function () {
-    let equipos = []; // Array para almacenar los equipos agregados
+    let equipos = []; 
 
-    // Seleccionar usuario
     $('#lista').on('click', 'li', function () {
         let Data = $(this).text().split(" - ");
         $('#data').val(Data[2]); 
         $('#data3').val(Data[0]); 
     });
 
-    // Buscar usuarios
     $('input[name=filtro]').keyup(function () {
         if ($(this).val().trim().length > 0) {
             $.ajax({
@@ -229,13 +231,11 @@ if (!isset($_SESSION['usuario'])) {
         }
     });
 
-    // Seleccionar equipo
     $('#lista2').on('click', 'li', function () {
         let Data2 = $(this).text().split(" - ");
         $('#data2').val(Data2[1]); 
     });
 
-    // Buscar equipos
     $('input[name=filtro2]').keyup(function () {
         if ($(this).val().trim().length > 0) {
             $.ajax({
@@ -255,7 +255,6 @@ if (!isset($_SESSION['usuario'])) {
         }
     });
 
-    // Agregar equipo a la lista
     $('#agregarEquipo').click(function () {
         let placa_equipo = $('#data2').val();
         if (placa_equipo && !equipos.includes(placa_equipo)) {
@@ -267,14 +266,12 @@ if (!isset($_SESSION['usuario'])) {
         }
     });
 
-    // Eliminar equipo de la lista
     $(document).on('click', '.eliminarEquipo', function () {
         let placa = $(this).data('placa');
         equipos = equipos.filter(equipo => equipo !== placa);
         actualizarTabla();
     });
 
-    // Actualizar tabla de equipos agregados
     function actualizarTabla() {
         let tablaHTML = equipos.map(placa =>
             `<tr>
@@ -285,7 +282,6 @@ if (!isset($_SESSION['usuario'])) {
         $('#equiposSeleccionados').html(tablaHTML);
     }
 
-    // Guardar asignación
     $('#guardar').click(function () {
     let id_usuario = $('#data').val();
     let estado_asig = 'ACTIVO';

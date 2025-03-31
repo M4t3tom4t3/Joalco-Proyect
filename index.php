@@ -23,7 +23,7 @@ while ($equipos = mysqli_fetch_assoc($consulta2)) {
     $dataPoints2[] = array("label" => $equipos['estado'], "y" => (int)$equipos['cantidad']);
 }
 
-$ciudades_order = ['Bogota', 'Buenaventura', 'Itagui'];
+$ciudades_order = ['Bogota', 'Buenaventura', 'Itagui','Cartagena', 'Cali', 'Barranquilla','Villanueva'];
 
 $query_mantenimiento_mayor_a_un_ano = "
 SELECT 
@@ -31,7 +31,7 @@ SELECT
     COUNT(*) as cantidad_mayor_a_un_ano
 FROM mantenimiento m
 JOIN equipos e ON m.fk_serial = e.serial
-WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui') 
+WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui','Cartagena', 'Cali', 'Barranquilla','Villanueva') 
 AND e.nombre_equipo IN ('PC', 'PORTATIL') 
 AND DATEDIFF(CURDATE(), m.fecha_fin) > 365
 GROUP BY m.ciudad;
@@ -44,14 +44,13 @@ while ($row = mysqli_fetch_assoc($result_mantenimiento_mayor_a_un_ano)) {
     $mayor_a_un_ano[$row['ciudad']] = (int)$row['cantidad_mayor_a_un_ano'];
 }
 
-// Consulta para equipos con mantenimientos menores o iguales a un año
 $query_mantenimiento_menor_a_un_ano = "
 SELECT 
     m.ciudad, 
     COUNT(*) as cantidad_menor_a_un_ano
 FROM mantenimiento m
 JOIN equipos e ON m.fk_serial = e.serial
-WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui') 
+WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui','Cartagena', 'Cali', 'Barranquilla','Villanueva') 
 AND e.nombre_equipo IN ('PC', 'PORTATIL') 
 AND DATEDIFF(CURDATE(), m.fecha_fin) <= 365
 GROUP BY m.ciudad;
@@ -64,7 +63,6 @@ while ($row = mysqli_fetch_assoc($result_mantenimiento_menor_a_un_ano)) {
     $menor_a_un_ano[$row['ciudad']] = (int)$row['cantidad_menor_a_un_ano'];
 }
 
-// Generar los dataPoints para el gráfico
 $dataPoints3 = [];
 $dataPoints4 = [];
 
@@ -154,14 +152,14 @@ mysqli_close($link);
     },
     data: [{
         type: "column",
-        name: "Mayor a 1 año",
+        name: "Pendientes",
         indexLabel: "{y}",
         yValueFormatString: "N°#0.##",
         showInLegend: true,
         dataPoints: <?php echo json_encode($dataPoints3, JSON_NUMERIC_CHECK); ?>
     },{
         type: "column",
-        name: "Menor o igual a 1 año",
+        name: "Realizados",
         indexLabel: "{y}",
         yValueFormatString: "N°#0.##",
         showInLegend: true,
@@ -301,6 +299,10 @@ mysqli_close($link);
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                                 <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>

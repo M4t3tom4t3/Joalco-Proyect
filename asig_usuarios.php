@@ -115,6 +115,10 @@ if (!isset($_SESSION['usuario'])) {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                                 <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>

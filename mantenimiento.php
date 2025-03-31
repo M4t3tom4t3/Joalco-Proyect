@@ -134,6 +134,10 @@ if (!isset($_SESSION['usuario'])) {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                             <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                            <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -195,6 +199,7 @@ if (!isset($_SESSION['usuario'])) {
                                         $sql = "SELECT m.id, m.fk_serial, m.fecha_inicio, m.fecha_fin 
                                         FROM mantenimiento m
                                         WHERE m.fk_serial LIKE ?
+                                        ORDER BY m.id DESC
                                         LIMIT $start_from, $results_per_page";                                        $stmt = $conn->prepare($sql);
                                         $search_term = "%". $search . "%";
                                         $stmt->bind_param("s", $search_term);

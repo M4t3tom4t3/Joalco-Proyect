@@ -110,17 +110,14 @@ if (!isset($_SESSION['usuario'])) {
 
             $conn = new mysqli($servername, $username, $password, $dbname);
 
-            // Verificar la conexión
             if ($conn->connect_error) {
                 die("Conexión fallida: " . $conn->connect_error);
             }
 
-            // Consultar el número de usuarios
             $query_usuarios = "SELECT COUNT(*) AS total_usuarios FROM usuarios";
             $result_usuarios = $conn->query($query_usuarios);
             $usuarios = $result_usuarios->fetch_assoc();
 
-            // Consultar el número de equipos
             $query_equipos = "SELECT COUNT(*) AS total_equipos FROM equipos";
             $result_equipos = $conn->query($query_equipos);
             $equipos = $result_equipos->fetch_assoc();
@@ -140,6 +137,10 @@ if (!isset($_SESSION['usuario'])) {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                             <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                            <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>

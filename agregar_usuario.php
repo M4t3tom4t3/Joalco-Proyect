@@ -123,6 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
                             <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                            <?php if ($_SESSION['rol'] == 'admin') : ?>
+                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -168,6 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <option value="mantenimiento">Mantenimiento</option>
         <option value="cumplidos">Cumplidos</option>
         <option value="obra">Obra</option>
+        <option value="Agropecuaria">Agropecuaria</option>
     </select>
 </div>
 
