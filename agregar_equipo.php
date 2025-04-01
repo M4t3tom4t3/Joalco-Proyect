@@ -227,11 +227,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <h3 class="fw-bold fs-4 mb-3">Agregar Equipo</h3>
                         <div class="row">
                             <div class="container mt-4">
-                                <form action="agregar_equipo.php" method="POST" enctype="multipart/form-data" id="formEquipo">
+                                <form action="agregar_equipo.php" class="needs-validation" method="POST" enctype="multipart/form-data" id="formEquipo">
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="serial" class="form-label">Serial</label>
-                                            <input type="text" class="form-control" id="serial" name="serial" required>
+                                            <input type="text" class="form-control" id="serial" name="serial" required onblur="validarSerial()">
+                                            <div class="invalid-feedback">Este número de serie ya está registrado.</div>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="marca" class="form-label">Marca</label>
@@ -256,7 +257,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="placa" class="form-label">Placa</label>
-                                            <input type="text" class="form-control" id="placa" name="placa" placeholder="XXX-0000" required>
+                                            <input type="text" class="form-control" id="placa" name="placa" placeholder="XXX-0000" required onblur="validarPlaca()">
+                                            <div class="invalid-feedback">Esta placa ya está registrada.</div>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="activo_fijo" class="form-label">Activo Fijo</label>
@@ -292,7 +294,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="hv" class="form-label">Hoja de Vida</label>
-                                            <input type="number" class="form-control" id="hv" name="hv">
+                                            <input type="number" class="form-control" id="hv" name="hv" onblur="validarHv()">
+                                            <div class="invalid-feedback">Esta hoja de vida ya está registrada.</div>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="sistema_operativo" class="form-label">Sistema Operativo</label>
@@ -412,7 +415,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     document.addEventListener('DOMContentLoaded', function () {
         const nombreEquipoInput = document.getElementById('nombre_equipo');
         
-        // Campos que quieres bloquear/desbloquear
         const camposAHabilitar = [
             'ram',
             'hv',
@@ -463,22 +465,82 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const activoFijoInput = document.getElementById('activo_fijo');
 
         function toggleActivoFijo() {
-            // Obtener el valor de costo y comprobar si es mayor a 2,847,000
             const costoValue = parseFloat(costoInput.value);
 
             if (costoValue > 2847000) {
-                activoFijoInput.disabled = false; // Habilitar campo "Activo Fijo"
+                activoFijoInput.disabled = false; 
             } else {
-                activoFijoInput.disabled = true;  // Deshabilitar campo "Activo Fijo"
+                activoFijoInput.disabled = true; 
             }
         }
 
-        // Llama a la función cuando el valor de "Costo" cambie
         costoInput.addEventListener('input', toggleActivoFijo);
 
-        // Ejecutar la función al cargar la página, en caso de que ya tenga un valor predeterminado
         toggleActivoFijo();
     });
+</script>
+<script>
+function validarSerial() {
+    let serialInput = document.getElementById("serial");
+    let serial = serialInput.value;
+
+    if (serial.trim() === "") return;
+
+    fetch("validar_serial.php?serial=" + serial)
+        .then(response => response.json())
+        .then(data => {
+            if (data.existe) {
+                serialInput.classList.add("is-invalid");
+                serialInput.classList.remove("is-valid");
+            } else {
+                serialInput.classList.add("is-valid");
+                serialInput.classList.remove("is-invalid");
+            }
+        })
+        .catch(error => console.error("Error en la validación:", error));
+}
+</script>
+<script>
+function validarPlaca() {
+    let placaInput = document.getElementById("placa");
+    let placa = placaInput.value;
+
+    if (placa.trim() === "") return;
+
+    fetch("validar_placa.php?placa=" + placa)
+        .then(response => response.json())
+        .then(data => {
+            if (data.existe) {
+                placaInput.classList.add("is-invalid");
+                placaInput.classList.remove("is-valid");
+            } else {
+                placaInput.classList.add("is-valid");
+                placaInput.classList.remove("is-invalid");
+            }
+        })
+        .catch(error => console.error("Error en la validación:", error));
+}
+</script>
+<script>
+function validarHv() {
+    let hvInput = document.getElementById("hv");
+    let hv = hvInput.value;
+
+    if (hv.trim() === "") return;
+
+    fetch("validar_hv.php?hv=" + hv)
+        .then(response => response.json())
+        .then(data => {
+            if (data.existe) {
+                hvInput.classList.add("is-invalid");
+                hvInput.classList.remove("is-valid");
+            } else {
+                hvInput.classList.add("is-valid");
+                hvInput.classList.remove("is-invalid");
+            }
+        })
+        .catch(error => console.error("Error en la validación:", error));
+}
 </script>
 
 </body>

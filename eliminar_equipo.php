@@ -8,8 +8,8 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] != 'admin') {
 
 $eliminado = false; 
 
-if (isset($_GET['ID_usuario'])) {
-    $ID_usuario = $_GET['ID_usuario'];
+if (isset($_GET['serial'])) {
+    $serial = $_GET['serial'];
 
     $servername = "localhost";
     $username = "root";

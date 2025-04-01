@@ -7,7 +7,10 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 $link = mysqli_connect("localhost", "root", "", "jp");
-$consulta = mysqli_query($link, "SELECT nombre_equipo, COUNT(*) as cantidad FROM equipos WHERE nombre_equipo='PC' OR nombre_equipo='PORTATIL' GROUP BY nombre_equipo");
+$consulta = mysqli_query($link, "SELECT nombre_equipo, COUNT(*) as cantidad FROM equipos 
+                                                WHERE nombre_equipo='PC' AND estado = 'ACTIVO' 
+                                                OR nombre_equipo='PORTATIL' AND estado = 'ACTIVO' 
+                                                GROUP BY nombre_equipo");
 
 $dataPoints1 = array();
 
@@ -15,7 +18,13 @@ while ($equipos = mysqli_fetch_assoc($consulta)) {
     $dataPoints1[] = array("label" => $equipos['nombre_equipo'], "y" => (int)$equipos['cantidad']);
 }
 
-$consulta2 = mysqli_query($link, "SELECT estado, COUNT(*) as cantidad FROM equipos WHERE estado IN ('ACTIVO', 'DE BAJA', 'BODEGA') GROUP BY estado");
+$consulta2 = mysqli_query($link, "
+    SELECT estado, COUNT(*) as cantidad 
+    FROM equipos 
+    WHERE estado IN ('ACTIVO', 'DE BAJA', 'BODEGA') 
+    AND (nombre_equipo = 'PC' OR nombre_equipo = 'PORTATIL') 
+    GROUP BY estado
+");
 
 $dataPoints2 = array();
 
@@ -31,11 +40,17 @@ SELECT
     COUNT(*) as cantidad_mayor_a_un_ano
 FROM mantenimiento m
 JOIN equipos e ON m.fk_serial = e.serial
+JOIN (
+    SELECT fk_serial, MAX(fecha_fin) as ultima_fecha
+    FROM mantenimiento
+    GROUP BY fk_serial
+) ultimos ON m.fk_serial = ultimos.fk_serial AND m.fecha_fin = ultimos.ultima_fecha
 WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui','Cartagena', 'Cali', 'Barranquilla','Villanueva') 
 AND e.nombre_equipo IN ('PC', 'PORTATIL') 
-AND DATEDIFF(CURDATE(), m.fecha_fin) > 365
+AND DATEDIFF(CURDATE(), ultimos.ultima_fecha) > 365
 GROUP BY m.ciudad;
 ";
+
 
 $result_mantenimiento_mayor_a_un_ano = mysqli_query($link, $query_mantenimiento_mayor_a_un_ano);
 
@@ -50,11 +65,18 @@ SELECT
     COUNT(*) as cantidad_menor_a_un_ano
 FROM mantenimiento m
 JOIN equipos e ON m.fk_serial = e.serial
+JOIN (
+    SELECT fk_serial, MAX(fecha_fin) as ultima_fecha
+    FROM mantenimiento
+    GROUP BY fk_serial
+) ultimos ON m.fk_serial = ultimos.fk_serial AND m.fecha_fin = ultimos.ultima_fecha
 WHERE m.ciudad IN ('Bogota', 'Buenaventura', 'Itagui','Cartagena', 'Cali', 'Barranquilla','Villanueva') 
 AND e.nombre_equipo IN ('PC', 'PORTATIL') 
-AND DATEDIFF(CURDATE(), m.fecha_fin) <= 365
+AND DATEDIFF(CURDATE(), ultimos.ultima_fecha) <= 365
 GROUP BY m.ciudad;
 ";
+
+
 
 $result_mantenimiento_menor_a_un_ano = mysqli_query($link, $query_mantenimiento_menor_a_un_ano);
 
@@ -101,7 +123,7 @@ mysqli_close($link);
      animationEnabled: true,
      exportEnabled: true,
      title:{
-         text: "PC y Portatiles Joalco"
+         text: "PC y Portatiles Activos"
      },
      subtitles: [{
          text: "2025"
@@ -120,7 +142,7 @@ mysqli_close($link);
         animationEnabled: true,
         exportEnabled: true,
         title: {
-            text: "Estado de los Equipos Joalco"
+            text: "Estado PC y Portatiles"
         },
         subtitles: [{
             text: "2025"
@@ -292,7 +314,9 @@ mysqli_close($link);
 
                 </form>
                 <div class="navbar-collapse collapse">
+                    <h5>Bienvenido, <?php echo $_SESSION['nombre_a'] . " " . $_SESSION['apellido_a']; ?>!</h5>
                     <ul class="navbar-nav ms-auto">
+                        
                         <li class="nav-item dropdown">
                             <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
                                 <img src="account.png" class="avatar img-fluid" alt="">
@@ -327,8 +351,8 @@ mysqli_close($link);
                             <div class="col-md-6 col-lg-4 mb-4">
                                 <div class="card" style="width: 100%;">
                                     <div class="card-body">
-                                        <h5 class="card-title"><strong>Equipos Totales</strong></h5>
-                                        <p class="card-text">Equipos registrados:
+                                        <h5 class="card-title"><strong>Elementos Totales</strong></h5>
+                                        <p class="card-text">Elementos registrados:
                                             <strong><?php echo $equipos['total_equipos']; ?></strong>
                                         </p>
                                     </div>
