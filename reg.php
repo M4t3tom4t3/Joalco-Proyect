@@ -13,16 +13,15 @@ if (!isset($_SESSION['usuario'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Usuario</title>
-    <!-- Agregar el enlace a Bootstrap CSS desde CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #0826a1; /* Puedes cambiar este color al que desees */
+            background-color: #0826a1; 
         }
 
         .card-body {
-            background-color: white; /* Fondo blanco solo para el contenido interno */
-            padding: 20px; /* Espaciado interno */
+            background-color: white; 
+            padding: 20px; 
         }
     </style>
 </head>
@@ -34,7 +33,15 @@ if (!isset($_SESSION['usuario'])) {
                 <h5 class="card-title text-center">Registrar Usuario</h5>
                 <form action="registro.php" method="POST">
                     <div class="mb-3">
-                        <label for="usuario" class="form-label">Nombre de usuario</label>
+                        <label for="usuario" class="form-label">Nombre</label>
+                        <input type="text" id="nombre_a" name="nombre_a" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Apellido</label>
+                        <input type="text" id="apellido_a" name="apellido_a" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Identificador</label>
                         <input type="text" id="usuario" name="usuario" class="form-control" required>
                     </div>
                     <div class="mb-3">
@@ -51,7 +58,6 @@ if (!isset($_SESSION['usuario'])) {
         </div>
     </div>
 
-    <!-- Agregar el enlace a Bootstrap JS desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

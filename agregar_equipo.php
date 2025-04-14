@@ -478,6 +478,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         toggleActivoFijo();
     });
+    document.addEventListener('DOMContentLoaded', function () {
+    const hvInput = document.getElementById('hv');
+
+    function obtenerSiguienteHv() {
+        fetch('obtener_ultima_hv.php')
+            .then(response => response.json())
+            .then(data => {
+                hvInput.value = data.siguiente_hv;
+            })
+            .catch(error => console.error('Error obteniendo la HV:', error));
+    }
+
+    hvInput.addEventListener('focus', obtenerSiguienteHv);
+});
+
 </script>
 <script>
 function validarSerial() {

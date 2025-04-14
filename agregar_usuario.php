@@ -48,9 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                <a href="index.php">
-                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
-                </a>
+                    <a href="index.php">
+                        <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada"
+                            style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                    </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -93,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <span>Hoja de Vida</span>
                     </a>
                 </li>
-                
+
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                         data-bs-target="#impresoras" aria-expanded="false" aria-controls="impresoras">
@@ -122,10 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
-                            <?php if ($_SESSION['rol'] == 'admin') : ?>
-                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
-                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <?php if ($_SESSION['rol'] == 'admin'): ?>
+                                    <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                    <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
                                 <?php endif; ?>
                             </div>
                         </li>
@@ -141,53 +142,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <form action="agregar_usuario.php" method="POST" id="formUsuario">
                                     <div class="mb-3">
                                         <label for="marca" class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="PRIMER NOMBRE" required>
+                                        <input type="text" class="form-control" id="nombre" name="nombre"
+                                            placeholder="PRIMER NOMBRE" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="marca" class="form-label">Apellido</label>
-                                        <input type="text" class="form-control" id="apellido" name="apellido" placeholder="PRIMER APELLIDO" required>
+                                        <input type="text" class="form-control" id="apellido" name="apellido"
+                                            placeholder="PRIMER APELLIDO" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="modelo" class="form-label">Cargo</label>
                                         <input type="text" class="form-control" id="cargo" name="cargo" required>
                                     </div>
                                     <div class="mb-3">
-    <label for="departamento" class="form-label">Área</label>
-    <select class="form-control" id="departamento" name="departamento" required>
-        <option value="" disabled selected>Selecciona un área</option>
-        <option value="sistemas">Sistemas</option>
-        <option value="operaciones_carga_liquida">Operaciones Carga Líquida</option>
-        <option value="operaciones_carga_seca">Operaciones Carga Seca</option>
-        <option value="combustibles">Combustibles</option>
-        <option value="costos">Costos</option>
-        <option value="flota_propia">Flota Propia</option>
-        <option value="recursos_humanos">Recursos Humanos</option>
-        <option value="administrativo">Administrativo</option>
-        <option value="gerencia">Gerencia</option>
-        <option value="juridico">Jurídico</option>
-        <option value="comercial">Comercial</option>
-        <option value="contabilidad">Contabilidad</option>
-        <option value="compras">Compras</option>
-        <option value="almacen">Almacén</option>
-        <option value="mantenimiento">Mantenimiento</option>
-        <option value="cumplidos">Cumplidos</option>
-        <option value="obra">Obra</option>
-        <option value="Agropecuaria">Agropecuaria</option>
-    </select>
-</div>
+                                        <label for="departamento" class="form-label">Área</label>
+                                        <select class="form-control" id="departamento" name="departamento" required>
+                                            <option value="" disabled selected>Selecciona un área</option>
+                                            <option value="sistemas">Sistemas</option>
+                                            <option value="operaciones_carga_liquida">Operaciones Carga Líquida</option>
+                                            <option value="operaciones_carga_seca">Operaciones Carga Seca</option>
+                                            <option value="combustibles">Combustibles</option>
+                                            <option value="costos">Costos</option>
+                                            <option value="flota_propia">Flota Propia</option>
+                                            <option value="recursos_humanos">Recursos Humanos</option>
+                                            <option value="administrativo">Administrativo</option>
+                                            <option value="gerencia">Gerencia</option>
+                                            <option value="juridico">Jurídico</option>
+                                            <option value="comercial">Comercial</option>
+                                            <option value="contabilidad">Contabilidad</option>
+                                            <option value="compras">Compras</option>
+                                            <option value="almacen">Almacén</option>
+                                            <option value="mantenimiento">Mantenimiento</option>
+                                            <option value="cumplidos">Cumplidos</option>
+                                            <option value="obra">Obra</option>
+                                            <option value="Agropecuaria">Agropecuaria</option>
+                                        </select>
+                                    </div>
 
-<div class="mb-3">
-    <label for="ciudad" class="form-label">Ciudad</label>
-    <select class="form-control" id="ciudad" name="ciudad" required>
-        <option value="" disabled selected>Selecciona una ciudad</option>
-        <option value="bogota">Bogotá</option>
-        <option value="cartagena">Cartagena</option>
-        <option value="yumbo">Yumbo</option>
-        <option value="buenaventura">Buenaventura</option>
-        <option value="barranquilla">Barranquilla</option>
-        <option value="itagui">Itagüí</option>
-    </select>
-</div>
+                                    <div class="mb-3">
+                                        <label for="ciudad" class="form-label">Ciudad</label>
+                                        <select class="form-control" id="ciudad" name="ciudad" required>
+                                            <option value="" disabled selected>Selecciona una ciudad</option>
+                                            <option value="bogota">Bogotá</option>
+                                            <option value="cartagena">Cartagena</option>
+                                            <option value="yumbo">Yumbo</option>
+                                            <option value="buenaventura">Buenaventura</option>
+                                            <option value="barranquilla">Barranquilla</option>
+                                            <option value="itagui">Itagüí</option>
+                                        </select>
+                                    </div>
 
 
                                     <button type="submit" class="btn btn-primary">Guardar</button>
@@ -206,25 +209,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script>
-    
-    function validarCaracteres(event) {
-        const input = event.target;
-        
-        const regex = /^[a-zA-Z0-9-_\.@ ]*$/;
 
-        
-        if (!regex.test(input.value)) {
-            input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, '');
+        function validarCaracteres(event) {
+            const input = event.target;
+
+            const regex = /^[a-zA-Z0-9-_\.@ ]*$/;
+
+
+            if (!regex.test(input.value)) {
+                input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, '');
+            }
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        let inputs = document.querySelectorAll('#formUsuario input[type="text"]');
-        inputs.forEach(input => {
-            input.addEventListener('input', validarCaracteres); 
+        document.addEventListener('DOMContentLoaded', function () {
+            let inputs = document.querySelectorAll('#formUsuario input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', validarCaracteres);
+            });
         });
-    });
-</script>
+    </script>
 </body>
 
 </html>

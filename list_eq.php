@@ -30,9 +30,10 @@ if (!isset($_SESSION['usuario'])) {
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                <a href="index.php">
-                <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada" style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
-                </a>
+                    <a href="index.php">
+                        <img src="Joalco2.jpeg" alt="Logo" class="img-fluid mb-4 redondeada"
+                            style="max-width: 160px; margin-top: 20px; margin-right: 30px;">
+                    </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -110,10 +111,10 @@ if (!isset($_SESSION['usuario'])) {
                                 <img src="account.png" class="avatar img-fluid" alt="">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end rounded">
-                            <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
-                            <?php if ($_SESSION['rol'] == 'admin') : ?>
-                                <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
-                                <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <a href="logout.php" class="dropdown-item">Cerrar sesión</a>
+                                <?php if ($_SESSION['rol'] == 'admin'): ?>
+                                    <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
+                                    <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
                                 <?php endif; ?>
                             </div>
                         </li>
@@ -133,7 +134,9 @@ if (!isset($_SESSION['usuario'])) {
                                     value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                                 <button class="btn btn-outline-primary" type="submit">Buscar</button>
                             </form>
-                            <a href="list_eq.php" class="btn btn-outline-success me-md-2">
+                            <a href="gen_repoE.php" class="btn btn-outline-success me-md-2"><i
+                                    class="bi bi-file-earmark-spreadsheet"></i></a>
+                            <a href="list_eq.php" class="btn btn-outline-warning me-md-2">
                                 ⟳
                             </a>
                             <a href="agregar_equipo.php" class="btn btn-success me-md-2">Agregar</a>
@@ -214,13 +217,15 @@ if (!isset($_SESSION['usuario'])) {
                                                 
                                                 <button class='btn btn-success btn-sm edit-btn' onclick=\"window.location.href='subir_imagen.php?serial=" . $serial . "'\">
                                                 <i class='lni lni-folder'></i> 
-                                                </button>";
+                                                </button>
+                                                
+                                                ";
                                                 if ($_SESSION['rol'] == 'admin') {
                                                     echo "<button class='btn btn-danger btn-sm delete-btn' data-serial='" . $serial . "'>
                                                             <i class='bi bi-trash'></i>
                                                           </button>";
                                                 }
-                                    
+
                                                 echo "</td>";
                                             }
                                         } else {
@@ -284,7 +289,8 @@ if (!isset($_SESSION['usuario'])) {
                                                         aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form id="editEquipoForm" enctype="multipart/form-data" id="formEditar">
+                                                    <form id="editEquipoForm" enctype="multipart/form-data"
+                                                        id="formEditar">
                                                         <input type="hidden" id="serial" name="serial">
 
                                                         <div class="mb-3">
@@ -447,10 +453,10 @@ if (!isset($_SESSION['usuario'])) {
                                         </li>
 
                                         <?php
-                                        $range = 2; 
-                                        $start = max(1, $page - $range); 
-                                        $end = min($total_pages, $page + $range); 
-                                        
+                                        $range = 2;
+                                        $start = max(1, $page - $range);
+                                        $end = min($total_pages, $page + $range);
+
                                         for ($i = $start; $i <= $end; $i++) {
                                             echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'>
                                             <a class='page-link' href='?page=$i&search=" . urlencode($search) . "'>$i</a>
@@ -636,56 +642,57 @@ if (!isset($_SESSION['usuario'])) {
     <script>
         $(document).ready(function () {
             $('.btn-upload-image').on('click', function () {
-                var serial = $(this).data('serial'); 
+                var serial = $(this).data('serial');
                 window.location.href = 'subir_imagen.php?serial=' + serial;
             });
         });
     </script>
     <script>
 
-    function validarCaracteres(event) {
-        const input = event.target;
-        const regex = /^[a-zA-Z0-9-_\.@]*$/;
+        function validarCaracteres(event) {
+            const input = event.target;
+            const regex = /^[a-zA-Z0-9-_\.@]*$/;
 
-        if (!regex.test(input.value)) {
-            input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, ''); 
+            if (!regex.test(input.value)) {
+                input.value = input.value.replace(/[^a-zA-Z0-9-_\.@]/g, '');
+            }
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        let inputs = document.querySelectorAll('#formEditar input[type="text"]'); 
-        inputs.forEach(input => {
-            input.addEventListener('input', validarCaracteres);  
+        document.addEventListener('DOMContentLoaded', function () {
+            let inputs = document.querySelectorAll('#formEditar input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', validarCaracteres);
+            });
         });
-    });
-</script>
-<script>
+    </script>
+    <script>
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const deleteButtons = document.querySelectorAll('.delete-btn');
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
 
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                const serial = button.getAttribute('data-serial'); 
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const serial = button.getAttribute('data-serial');
 
-                Swal.fire({
-                    title: '¿Estás seguro?',
-                    text: "¡No podrás revertir esta acción!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Sí, eliminarlo',
-                    cancelButtonText: 'Cancelar',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'eliminar_equipo.php?serial=' + serial;
-                    }
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡No podrás revertir esta acción!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, eliminarlo',
+                        cancelButtonText: 'Cancelar',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'eliminar_equipo.php?serial=' + serial;
+                        }
+                    });
                 });
             });
         });
-    });
-</script>
+    </script>
 
 </body>
+
 </html>

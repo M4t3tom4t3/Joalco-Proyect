@@ -326,6 +326,7 @@ mysqli_close($link);
                                 <?php if ($_SESSION['rol'] == 'admin') : ?>
                                 <a href="reg.php" class="dropdown-item">Registrar Administrador</a>
                                 <a href="carg_usuarios.php" class="dropdown-item">Insertar Usuarios CSV</a>
+                                <a href="carg_equipos.php" class="dropdown-item">Insertar Equipos CSV</a>
                                 <?php endif; ?>
                             </div>
                         </li>

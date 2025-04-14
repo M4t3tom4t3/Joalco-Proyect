@@ -32,7 +32,8 @@ function getPlantilla($numero_consecutivo){
                                a.numero_consecutivo 
                        FROM equipos e
                        JOIN asignacion a ON a.FK_serial = e.serial
-                       WHERE a.numero_consecutivo = ?";
+                       WHERE a.numero_consecutivo = ?
+                       ORDER BY e.PLACA ASC";
     $stmt = $conn->prepare($query_activos);
     if (!$stmt) {
         die("Error en la preparación de la consulta: " . $conn->error);
